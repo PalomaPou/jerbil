@@ -2,6 +2,9 @@ package sogrow.jerbil;
 
 import java.io.File;
 
+import winterwell.utils.time.Dt;
+import winterwell.utils.time.TUnit;
+
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.io.Option;
 
@@ -14,5 +17,8 @@ public class JerbilConfig {
 	public int port = 8282;
 	
 	public File projectdir;	
+	
+	@Option(description="If the site is in a git-managed directory, then regularly call git pull to keep it up to date. A no-config-required alternative to web-hooks.")
+	public Dt gitcheck = new Dt(1, TUnit.MINUTE);
 	
 }

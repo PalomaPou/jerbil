@@ -15,10 +15,12 @@ import com.winterwell.utils.io.WatchFiles.IListenToFileEvents;
 import com.winterwell.utils.web.WebUtils2;
 
 import sogrow.jerbil.BuildJerbilWebSite;
+import sogrow.jerbil.GitCheck;
 import sogrow.jerbil.JerbilConfig;
 import winterwell.utils.Utils;
 import winterwell.utils.gui.GuiUtils;
 import winterwell.utils.reporting.Log;
+import winterwell.utils.web.WebUtils;
 import winterwell.web.app.FileServlet;
 import winterwell.web.app.JettyLauncher;
 
@@ -26,7 +28,7 @@ import winterwell.web.app.JettyLauncher;
 /**
  * Command line entry point for Jerbil:
  * 
- * java -cp lib/* Jerbil
+ * java -cp jerbil.jar:lib/* Jerbil
  * 
  * @author daniel
  *
@@ -34,6 +36,7 @@ import winterwell.web.app.JettyLauncher;
 public class Jerbil {
 
 	private static BuildJerbilWebSite b;
+	private static GitCheck gitCheck;
 
 	/**
 	 * Watch for edits and keep rebuilding!
@@ -56,9 +59,18 @@ public class Jerbil {
 		
 		// watch for file edits
 		runWatcher(config);
+		// watch for git edits
+		if (config.gitcheck!=null) {
+			gitCheck = new GitCheck(config.projectdir, config.gitcheck);
+			gitCheck.start();
+		}
 		
 		if (config.server) {
-			WebUtils2.display("http://localhost:"+config.port);
+			WebUtils2.display(WebUtils.URI("http://localhost:"+config.port));
+		}
+		// spin the main thread
+		while(true) {
+			Utils.sleep(10000);
 		}
 	}
 
@@ -123,9 +135,6 @@ public class Jerbil {
 		});				
 		
 		Thread watchThread = new Thread(watch);
-		watchThread.start();
-		while(true) {
-			Utils.sleep(1000);
-		}
+		watchThread.start();		
 	}
 }
