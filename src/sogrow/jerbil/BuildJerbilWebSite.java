@@ -16,6 +16,7 @@ import winterwell.utils.IFilter;
 import winterwell.utils.Utils;
 import winterwell.utils.gui.GuiUtils;
 import winterwell.utils.reporting.Log;
+import winterwell.utils.time.Time;
 
 /**
  * Build a Jerbil website.
@@ -54,15 +55,25 @@ public class BuildJerbilWebSite extends BuildTask {
 	protected void doTask() throws Exception {
 		assert pages != null : this;
 		assert pages.isDirectory() : pages;
-		for(File f : pages.listFiles()) {
-			doBuildHtml(f);
-		}
+		doTask2(pages);
 		
 //		// Slides
 //		slideDir = new File(projectDir, "slides");
 //		File template = getTemplate(slideDir);		
 	}
 	
+	private void doTask2(File dir) {
+		for(File f : dir.listFiles()) {
+			if (f.isFile()) {
+				doBuildHtml(f);
+				continue;
+			}
+			if (f.isDirectory()) {
+				doTask2(dir);
+			}
+		}
+	}
+
 	protected File getTemplate(File f) {
 		File dir = f.isDirectory()? f : f.getParentFile();
 		File tf = new File(dir, "template.html");
@@ -84,6 +95,8 @@ public class BuildJerbilWebSite extends BuildTask {
 			page = mp.markdown(page);
 		}
 		html = html.replace("$contents", page);
+		long modtime = f.lastModified();
+		html = html.replace("$modtime", new Time(modtime).toString());
 		
 		File out = new File(webroot, f.getName());
 		out = FileUtils.changeType(out, "html");
