@@ -69,7 +69,7 @@ public class BuildJerbilWebSite extends BuildTask {
 				continue;
 			}
 			if (f.isDirectory()) {
-				doTask2(dir);
+				doTask2(f);
 			}
 		}
 	}
