@@ -21,4 +21,9 @@ public class JerbilConfig {
 	@Option(description="If the site is in a git-managed directory, then regularly call git pull to keep it up to date. A no-config-required alternative to web-hooks.")
 	public Dt gitcheck = new Dt(1, TUnit.MINUTE);
 	
+	@Option(description="If true, Jerbil will try to open a web browser for you.")
+	public boolean preview = true;
+	
+	@Option(description="If true, Jerbil will exit after build -- this disables the server and git-check.")
+	public boolean exit = false;
 }

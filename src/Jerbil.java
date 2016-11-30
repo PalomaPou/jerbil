@@ -55,6 +55,10 @@ public class Jerbil {
 		// build
 		b = new BuildJerbilWebSite(config);		
 		b.run();
+		// exit?
+		if (config.exit) {
+			return;
+		}
 		// run a web server?
 		if (config.server) {
 			runServer(config);
@@ -68,7 +72,7 @@ public class Jerbil {
 			gitCheck.start();
 		}
 		
-		if (config.server) {
+		if (config.server && ! config.preview) {
 			WebUtils2.display(WebUtils.URI("http://localhost:"+config.port));
 		}
 		// spin the main thread
