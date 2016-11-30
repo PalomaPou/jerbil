@@ -6,6 +6,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 
 import com.petebevin.markdown.MarkdownProcessor;
+import com.winterwell.utils.gui.GuiUtils;
 import com.winterwell.utils.io.FileEvent;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.io.WatchFiles;
@@ -14,7 +15,6 @@ import com.winterwell.utils.io.WatchFiles.IListenToFileEvents;
 import winterwell.bob.BuildTask;
 import winterwell.utils.IFilter;
 import winterwell.utils.Utils;
-import winterwell.utils.gui.GuiUtils;
 import winterwell.utils.reporting.Log;
 import winterwell.utils.time.Time;
 
@@ -65,7 +65,7 @@ public class BuildJerbilWebSite extends BuildTask {
 	private void doTask2(File dir) {
 		for(File f : dir.listFiles()) {
 			if (f.isFile()) {
-				doBuildHtml(f);
+				doBuildHtml(dir, f);
 				continue;
 			}
 			if (f.isDirectory()) {
@@ -82,7 +82,7 @@ public class BuildJerbilWebSite extends BuildTask {
 		return new File(webroot, "template.html");
 	}
 
-	private void doBuildHtml(File f) {
+	private void doBuildHtml(File dir, File f) {
 		File template = getTemplate(webroot);
 		String html = FileUtils.read(template);
 		String page = FileUtils.read(f);
@@ -94,12 +94,18 @@ public class BuildJerbilWebSite extends BuildTask {
 			MarkdownProcessor mp = new MarkdownProcessor();
 			page = mp.markdown(page);
 		}
+		
+		// Variables
+		// TODO files -> safely restricted file access??
 		html = html.replace("$contents", page);
+		html = html.replace("$webroot", ""); // TODO if dir is a sub-dir of webroot, put in a local path here, e.g. ".." 
 		long modtime = f.lastModified();
 		html = html.replace("$modtime", new Time(modtime).toString());
 		
-		File out = new File(webroot, f.getName());
+		String relpath = FileUtils.getRelativePath(f, pages);		
+		File out = new File(webroot, relpath);		
 		out = FileUtils.changeType(out, "html");
+		out.getParentFile().mkdir();
 		FileUtils.write(out, html);
 		Log.i(LOGTAG, "Made "+out);
 	}

@@ -19,14 +19,20 @@ import jobs.BuildStat;
 import jobs.BuildUtils;
 import jobs.BuildWeb;
 import jobs.BuildWinterwellProject;
+import sogrow.jerbil.JerbilConfig;
 
 public class BuildJerbil extends BuildWinterwellProject {
 
 	public BuildJerbil() {
 		super(new File(FileUtils.getWinterwellDir(), "jerbil"));
 		setIncSrc(true);
+		setMainClass("Jerbil");
 	}
 	
+
+	
+
+
 	@Override
 	public void doTask() throws Exception {	
 		super.doTask();
