@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.Set;
 import java.util.logging.Level;
 
-import winterwell.bob.tasks.CopyTask;
-import winterwell.bob.tasks.EclipseClasspath;
-import winterwell.bob.tasks.JarTask;
-import winterwell.bob.tasks.RSyncTask;
-import winterwell.bob.tasks.SCPTask;
+import com.winterwell.bob.tasks.CopyTask;
+import com.winterwell.bob.tasks.EclipseClasspath;
+import com.winterwell.bob.tasks.JarTask;
+import com.winterwell.bob.tasks.RSyncTask;
+import com.winterwell.bob.tasks.SCPTask;
 
 import com.winterwell.utils.io.FileUtils;
 

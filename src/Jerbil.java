@@ -19,13 +19,13 @@ import com.winterwell.utils.web.WebUtils2;
 import sogrow.jerbil.BuildJerbilWebSite;
 import sogrow.jerbil.GitCheck;
 import sogrow.jerbil.JerbilConfig;
-import winterwell.utils.Utils;
-import winterwell.utils.reporting.Log;
+import com.winterwell.utils.Utils;
+import com.winterwell.utils.log.Log;
 
 import com.winterwell.utils.time.TimeUtils;
 
-import winterwell.web.app.FileServlet;
-import winterwell.web.app.JettyLauncher;
+import com.winterwell.web.app.FileServlet;
+import com.winterwell.web.app.JettyLauncher;
 
 
 /**
