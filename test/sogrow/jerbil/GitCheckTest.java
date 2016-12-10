@@ -1,14 +1,11 @@
 package sogrow.jerbil;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 
 import org.junit.Test;
 
-import com.winterwell.utils.time.TUnit;
-
 import com.winterwell.utils.io.FileUtils;
+import com.winterwell.utils.time.TUnit;
 
 public class GitCheckTest {
 

@@ -2,11 +2,9 @@ package sogrow.jerbil;
 
 import java.io.File;
 
+import com.winterwell.utils.io.Option;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
-
-import com.winterwell.utils.io.FileUtils;
-import com.winterwell.utils.io.Option;
 
 public class JerbilConfig {
 	
