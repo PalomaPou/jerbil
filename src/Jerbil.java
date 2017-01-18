@@ -46,6 +46,8 @@ public class Jerbil {
 	private static BuildJerbilWebSite b;
 	private static GitCheck gitCheck;
 
+	public static final String VERSION = "0.2.0";
+	
 	/**
 	 * Watch for edits and keep rebuilding!
 	 * @param args
