@@ -23,6 +23,14 @@ import com.winterwell.web.app.JettyLauncher;
 import sogrow.jerbil.BuildJerbilWebSite;
 import sogrow.jerbil.GitCheck;
 import sogrow.jerbil.JerbilConfig;
+import com.winterwell.utils.Utils;
+import com.winterwell.utils.log.Log;
+
+import com.winterwell.utils.time.TimeUtils;
+
+import com.winterwell.web.app.FileServlet;
+import com.winterwell.web.app.JettyLauncher;
+
 
 
 /**
@@ -38,6 +46,8 @@ public class Jerbil {
 	private static BuildJerbilWebSite b;
 	private static GitCheck gitCheck;
 
+	public static final String VERSION = "0.2.0";
+	
 	/**
 	 * Watch for edits and keep rebuilding!
 	 * @param args
@@ -101,18 +111,25 @@ public class Jerbil {
 	private static JerbilConfig getConfig(String[] args) {
 		JerbilConfig config = new JerbilConfig();
 		List<String> leftoverArgs = new ArrayList();
-		config = ArgsParser.getConfig(config, args, new File("config/jerbil.properties"), leftoverArgs);		
-		if (config.projectdir!=null) return config;
-		
+		config = ArgsParser.getConfig(config, args, null, leftoverArgs);
+		File dir = config.projectdir!=null? config.projectdir : getConfig2_dir(leftoverArgs);
+		config.projectdir = dir;
+		// add config properties
+		File f = new File(dir, "config/jerbil.properties").getAbsoluteFile();
+		if (f.exists()) {
+			new ArgsParser(config).set(f);
+		}
+		return config;	
+	}
+
+	private static File getConfig2_dir(List<String> leftoverArgs) {
 		if ( ! leftoverArgs.isEmpty()) {
 			File dir =new File(leftoverArgs.get(0));
-			config.projectdir = dir;
-			return config;
+			return dir;
 		}		
 		// are we in a Jerbil dir?
 		if (new File(FileUtils.getWorkingDirectory(), "webroot").isDirectory()) {
-			config.projectdir = FileUtils.getWorkingDirectory();
-			return config;
+			return FileUtils.getWorkingDirectory();
 		}			
 		// Ask
 		File dir = GuiUtils.selectFile("Pick website project's base directory", null, new FileFilter() {				
@@ -121,8 +138,7 @@ public class Jerbil {
 				return pathname!=null && pathname.isDirectory();
 			}
 		});
-		config.projectdir = dir;
-		return config;	
+		return dir;
 	}
 
 	protected static void runWatcher(JerbilConfig config) throws IOException {		

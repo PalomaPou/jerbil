@@ -2,12 +2,23 @@ package sogrow.jerbil;
 
 import java.io.File;
 
+import com.winterwell.utils.time.Dt;
+import com.winterwell.utils.time.TUnit;
+
+import com.winterwell.utils.io.FileUtils;
+
 import com.winterwell.utils.io.Option;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 
 public class JerbilConfig {
 	
+	@Override
+	public String toString() {
+		return "JerbilConfig[server=" + server + ", port=" + port + ", projectdir=" + projectdir + ", gitcheck="
+				+ gitcheck + ", preview=" + preview + ", exit=" + exit + "]";
+	}
+
 	@Option(description="If true (the default) then Jerbil will run a simple web server. You can also use nginx or apache (or anything else) instead though.")
 	public boolean server = true;
 
