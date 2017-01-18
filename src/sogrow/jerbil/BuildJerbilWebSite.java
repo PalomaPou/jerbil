@@ -3,9 +3,23 @@ package sogrow.jerbil;
 
 import java.io.File;
 
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.petebevin.markdown.MarkdownProcessor;
 import com.winterwell.bob.BuildTask;
 import com.winterwell.utils.io.FileUtils;
+import com.winterwell.utils.io.WatchFiles;
+import com.winterwell.utils.io.WatchFiles.IListenToFileEvents;
+
+import com.winterwell.bob.BuildTask;
+import com.winterwell.utils.IFilter;
+import com.winterwell.utils.IReplace;
+import com.winterwell.utils.StrUtils;
+import com.winterwell.utils.Utils;
+
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Time;
 
@@ -48,15 +62,25 @@ public class BuildJerbilWebSite extends BuildTask {
 		assert pages.isDirectory() : pages;
 		doTask2(pages);
 		
+		// TODO also parse html for section tags and variables
+		
 //		// Slides
 //		slideDir = new File(projectDir, "slides");
 //		File template = getTemplate(slideDir);		
 	}
 	
+	/**
+	 * dir pages
+	 * */
 	private void doTask2(File dir) {
 		for(File f : dir.listFiles()) {
 			if (f.isFile()) {
-				doBuildHtml(dir, f);
+				File template = getTemplate(webroot);
+				String relpath = FileUtils.getRelativePath(f, pages);		
+				File out = new File(webroot, relpath);		
+				out = FileUtils.changeType(out, "html");				
+				BuildJerbilPage bjp = new BuildJerbilPage(f, out, template);
+				bjp.run();
 				continue;
 			}
 			if (f.isDirectory()) {
@@ -73,34 +97,6 @@ public class BuildJerbilWebSite extends BuildTask {
 		return new File(webroot, "template.html");
 	}
 
-	private void doBuildHtml(File dir, File f) {
-		File template = getTemplate(webroot);
-		String html = FileUtils.read(template);
-		String page = FileUtils.read(f);
-		
-		if ( ! page.isEmpty() && page.startsWith("<")) {
-			// html -- keep page as is
-		} else {
-			// TODO upgrade to https://github.com/sirthias/pegdown
-			MarkdownProcessor mp = new MarkdownProcessor();
-			page = mp.markdown(page);
-		}
-		
-		// Variables
-		// TODO files -> safely restricted file access??
-		html = html.replace("$contents", page);
-		html = html.replace("$webroot", ""); // TODO if dir is a sub-dir of webroot, put in a local path here, e.g. ".." 
-		long modtime = f.lastModified();
-		html = html.replace("$modtime", new Time(modtime).toString());
-		
-		String relpath = FileUtils.getRelativePath(f, pages);		
-		File out = new File(webroot, relpath);		
-		out = FileUtils.changeType(out, "html");
-		out.getParentFile().mkdir();
-		FileUtils.write(out, html);
-		Log.i(LOGTAG, "Made "+out);
-	}
-	
 	
 	
 
