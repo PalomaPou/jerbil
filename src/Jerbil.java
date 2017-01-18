@@ -79,8 +79,7 @@ public class Jerbil {
 	}
 
 	private static void runServer(JerbilConfig config) {
-		JettyLauncher jl = new JettyLauncher(config.projectdir, config.port);
-		jl.setWebRootDir(b.getWebroot());
+		JettyLauncher jl = new JettyLauncher(b.getWebroot(), config.port);
 		jl.setWebXmlFile(null);
 		jl.setCanShutdown(false);
 		jl.setup();		
