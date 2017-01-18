@@ -74,7 +74,12 @@ public class BuildJerbilWebSite extends BuildTask {
 	private void doTask2(File dir) {
 		for(File f : dir.listFiles()) {
 			if (f.isFile()) {
-				doBuildHtml(dir, f);
+				File template = getTemplate(webroot);
+				String relpath = FileUtils.getRelativePath(f, pages);		
+				File out = new File(webroot, relpath);		
+				out = FileUtils.changeType(out, "html");				
+				BuildJerbilPage bjp = new BuildJerbilPage(f, out, template);
+				bjp.run();
 				continue;
 			}
 			if (f.isDirectory()) {
@@ -91,58 +96,6 @@ public class BuildJerbilWebSite extends BuildTask {
 		return new File(webroot, "template.html");
 	}
 
-	private void doBuildHtml(final File dir, File f) {
-		File template = getTemplate(webroot);
-		String html = FileUtils.read(template);
-		String page = FileUtils.read(f);
-		
-		if ( ! page.isEmpty() && page.startsWith("<")) {
-			// html -- keep the page as-is
-		} else {
-			// TODO upgrade to https://github.com/sirthias/pegdown
-			MarkdownProcessor mp = new MarkdownProcessor();
-			page = mp.markdown(page);
-		}
-		
-		// Variables
-		// TODO key: value at the top of file -> javascript jerbil.key = value variables
-		// TODO files -> safely restricted file access??
-		html = html.replace("$contents", page);
-		html = html.replace("$webroot", ""); // TODO if dir is a sub-dir of webroot, put in a local path here, e.g. ".." 
-		long modtime = f.lastModified();
-		html = html.replace("$modtime", new Time(modtime).toString());
-		
-		// Recursive fill in of file references
-		Pattern SECTION = Pattern.compile("<section\\s+src=['\"]([\\S'\"]+)['\"]\\s*/>", Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
-		for(int depth=0; depth<10; depth++) {
-			String html2 = StrUtils.replace(html, SECTION, new IReplace() {
-				@Override
-				public void appendReplacementTo(StringBuilder sb, Matcher match) {
-					String insert = match.group(1);
-					// TODO security check: not below webroot!
-					File fi = new File(insert);
-					if ( ! fi.isAbsolute()) fi = new File(dir, insert);
-					String text = FileUtils.read(fi);
-					// TODO recursive use of this doBuildHtml method -- but we don't want the whole template
-					MarkdownProcessor mp2 = new MarkdownProcessor();
-					String texthtml = mp2.markdown(text);
-					sb.append(texthtml);
-				}
-			});
-			if (html2.equals(html)) {
-				break;				
-			}
-			html = html2;
-		}
-		
-		String relpath = FileUtils.getRelativePath(f, pages);		
-		File out = new File(webroot, relpath);		
-		out = FileUtils.changeType(out, "html");
-		out.getParentFile().mkdir();
-		FileUtils.write(out, html);
-		Log.i(LOGTAG, "Made "+out);
-	}
-	
 	
 	
 
