@@ -7,10 +7,10 @@ import java.util.TimerTask;
 
 import com.winterwell.utils.io.FileUtils;
 
-import winterwell.bob.tasks.GitTask;
-import winterwell.utils.reporting.Log;
-import winterwell.utils.time.Dt;
-import winterwell.utils.time.TUnit;
+import com.winterwell.bob.tasks.GitTask;
+import com.winterwell.utils.log.Log;
+import com.winterwell.utils.time.Dt;
+import com.winterwell.utils.time.TUnit;
 
 /**
  * Regularly pull from git. Assumes that a separate file-watcher will handle updates.
