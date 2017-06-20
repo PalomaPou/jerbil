@@ -46,7 +46,7 @@ public class Jerbil {
 	private static BuildJerbilWebSite b;
 	private static GitCheck gitCheck;
 
-	public static final String VERSION = "0.2.0";
+	public static final String VERSION = "0.2.1";
 	
 	/**
 	 * Watch for edits and keep rebuilding!
@@ -55,6 +55,10 @@ public class Jerbil {
 	 */
 	public static void main(String[] args) throws IOException {
 		JerbilConfig config = getConfig(args);		
+		if (args.length==1 && "--help".equals(args[0])) {
+			System.out.println(new ArgsParser(config).getOptionsMessage());
+			return;
+		}
 		if (config.projectdir==null) {
 			System.out.println("Run in a Jerbil website project directory -- or with the path to one as a parameter.");
 			return;
@@ -116,6 +120,7 @@ public class Jerbil {
 		config.projectdir = dir;
 		// add config properties
 		File f = new File(dir, "config/jerbil.properties").getAbsoluteFile();
+		Log.d("init", "Looking for Jerbil config in: "+f.getAbsolutePath());
 		if (f.exists()) {
 			new ArgsParser(config).set(f);
 		}

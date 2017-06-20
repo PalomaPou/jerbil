@@ -73,9 +73,13 @@ public class BuildJerbilWebSite extends BuildTask {
 	 * dir pages
 	 * */
 	private void doTask2(File dir) {
+		if ( ! dir.isDirectory()) {
+			throw Utils.runtime(new IOException("Not a directory: "+dir));
+		}
 		for(File f : dir.listFiles()) {
 			if (f.isFile()) {
 				File template = getTemplate(webroot);
+				assert template != null : "No html template?! "+webroot;
 				String relpath = FileUtils.getRelativePath(f, pages);		
 				File out = new File(webroot, relpath);		
 				out = FileUtils.changeType(out, "html");				
