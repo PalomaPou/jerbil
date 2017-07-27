@@ -5,6 +5,7 @@ import java.io.File;
 
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,6 +85,8 @@ public class BuildJerbilWebSite extends BuildTask {
 				File out = new File(webroot, relpath);		
 				out = FileUtils.changeType(out, "html");				
 				BuildJerbilPage bjp = new BuildJerbilPage(f, out, template);
+				Map<String, String> vars = config.var;
+				bjp.setVars(vars);
 				bjp.run();
 				continue;
 			}

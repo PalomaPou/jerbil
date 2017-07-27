@@ -120,7 +120,7 @@ public class Jerbil {
 		config.projectdir = dir;
 		// add config properties
 		File f = new File(dir, "config/jerbil.properties").getAbsoluteFile();
-		Log.d("init", "Looking for Jerbil config in: "+f.getAbsolutePath());
+		Log.d("init", "Looking for Jerbil config in:\n\t"+f.getAbsolutePath());
 		if (f.exists()) {
 			new ArgsParser(config).set(f);
 		}

@@ -1,12 +1,14 @@
 package sogrow.jerbil;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.petebevin.markdown.MarkdownProcessor;
 import com.winterwell.utils.IReplace;
+import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.io.FileUtils;
@@ -33,11 +35,18 @@ public class BuildJerbilPage {
 	public String toString() {
 		return "BuildJerbilPage [src=" + src + ", out=" + out + ", template=" + template + "]";
 	}
+	
+	Map<String, Object> var = new HashMap();
+	
+	public void setVars(Map<String, ?> vars) {
+		this.var = (Map) vars;
+	}
 
 	void run() {
 		String html = FileUtils.read(template).trim();
-		String page = FileUtils.read(src).trim();
-		Map<String,String> vars = new ArrayMap();
+		// check the template
+		checkTemplate(html);
+		String page = FileUtils.read(src).trim();		
 		
 		if (FileUtils.getType(src).equals("html") || FileUtils.getType(src).equals("htm")) {
 			// html -- keep the page as-is
@@ -51,7 +60,7 @@ public class BuildJerbilPage {
 				if (m.start() > prev+2) break;
 				String k = m.group(1);
 				String v = m.group(2).trim();
-				vars.put(k, v);
+				var.put(k, v);
 				prev = m.end();				
 			}			
 			page = page.substring(prev).trim();
@@ -60,19 +69,13 @@ public class BuildJerbilPage {
 			MarkdownProcessor mp = new MarkdownProcessor();
 			page = mp.markdown(page);
 		}
+		// $title
+		if (var!=null && ! var.containsKey("title")) {
+			var.put("title", StrUtils.toTitleCasePlus(FileUtils.getBasename(src)));
+		}
 		
 		// Variables
-		// TODO key: value at the top of file -> javascript jerbil.key = value variables
-		// TODO files -> safely restricted file access??
-		html = html.replace("$contents", page);
-		html = html.replace("$webroot", ""); // TODO if dir is a sub-dir of webroot, put in a local path here, e.g. ".." 
-		long modtime = src.lastModified();
-		// vars
-		html = html.replace("$modtime", new Time(modtime).toString());
-		// TODO refactor ScriptProperties to be creole free, and use that. It handles urls nicely.
-		for(String k : vars.keySet()) {
-			html = html.replace("$"+k, vars.get(k));
-		}
+		html = insertVariables(html, page);
 		
 		// Recursive fill in of file references
 		Pattern SECTION = Pattern.compile("<section\\s+src=['\"]([\\S'\"]+)['\"]\\s*/>", Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
@@ -100,6 +103,36 @@ public class BuildJerbilPage {
 		out.getParentFile().mkdir();
 		FileUtils.write(out, html);
 		Log.i(LOGTAG, "Made "+out);
+	}
+
+	private String insertVariables(String html, String page) {
+		// TODO key: value at the top of file -> javascript jerbil.key = value variables
+		// TODO files -> safely restricted file access??
+		html = html.replace("$contents", page);
+		html = html.replace("$webroot", ""); // TODO if dir is a sub-dir of webroot, put in a local path here, e.g. ".." 
+		long modtime = src.lastModified();
+		// vars
+		html = html.replace("$modtime", new Time(modtime).toString());
+		// TODO refactor ScriptProperties to be creole free, and use that. It handles urls nicely.
+		// First, word boundaries
+		for(String k : var.keySet()) {
+			Object v = var.get(k);
+			String vs = Printer.toString(v);
+			html = html.replaceAll("\\$"+Pattern.quote(k)+"\\b", vs);
+		}
+		// now anything goes
+		for(String k : var.keySet()) {
+			Object v = var.get(k);
+			String vs = Printer.toString(v);
+			html = html.replace("$"+k, vs);
+		}
+		return html;
+	}
+
+	private void checkTemplate(String html) {
+		if ( ! html.contains("$contents")) {
+			throw new IllegalStateException("The template file MUST contain the $contents variable: "+template);
+		}
 	}
 	
 }

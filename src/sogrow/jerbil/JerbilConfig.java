@@ -1,6 +1,8 @@
 package sogrow.jerbil;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
@@ -35,4 +37,7 @@ public class JerbilConfig {
 	
 	@Option(description="If true, Jerbil will exit after build -- this disables the server and git-check.")
 	public boolean exit = false;
+	
+	@Option
+	public Map<String,String> var = new HashMap();
 }
