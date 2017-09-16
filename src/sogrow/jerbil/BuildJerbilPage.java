@@ -65,7 +65,8 @@ public class BuildJerbilPage {
 			}			
 			page = page.substring(prev).trim();
 			
-			// TODO upgrade to https://github.com/sirthias/pegdown
+			// TODO upgrade to https://github.com/vsch/flexmark-java 
+			// or https://github.com/atlassian/commonmark-java
 			MarkdownProcessor mp = new MarkdownProcessor();
 			page = mp.markdown(page);
 		}

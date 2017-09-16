@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.gui.GuiUtils;
 import com.winterwell.utils.io.ArgsParser;
+import com.winterwell.utils.io.ConfigBuilder;
 import com.winterwell.utils.io.FileEvent;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.io.WatchFiles;
@@ -56,7 +57,7 @@ public class Jerbil {
 	public static void main(String[] args) throws IOException {
 		JerbilConfig config = getConfig(args);		
 		if (args.length==1 && "--help".equals(args[0])) {
-			System.out.println(new ArgsParser(config).getOptionsMessage());
+			System.out.println(new ConfigBuilder(config).getOptionsMessage());
 			return;
 		}
 		if (config.projectdir==null) {
