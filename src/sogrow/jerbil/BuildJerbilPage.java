@@ -67,8 +67,9 @@ public class BuildJerbilPage {
 			
 			// TODO upgrade to https://github.com/vsch/flexmark-java 
 			// or https://github.com/atlassian/commonmark-java
-			MarkdownProcessor mp = new MarkdownProcessor();
-			page = mp.markdown(page);
+			page = Markdown.render(page);
+//			MarkdownProcessor mp = new MarkdownProcessor();
+//			page = mp.markdown(page);
 		}
 		// $title
 		if (var!=null && ! var.containsKey("title")) {

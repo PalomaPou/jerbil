@@ -160,6 +160,7 @@ public class Jerbil {
 		});				
 		
 		Thread watchThread = new Thread(watch);
+		watchThread.setName("watch-"+b.getProjectDir().getName());
 		watchThread.start();		
 	}
 }
