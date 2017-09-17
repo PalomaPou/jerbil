@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.petebevin.markdown.MarkdownProcessor;
+
 import com.winterwell.utils.IReplace;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
@@ -46,8 +46,17 @@ public class BuildJerbilPage {
 		String html = FileUtils.read(template).trim();
 		// check the template
 		checkTemplate(html);
+		
 		String page = FileUtils.read(src).trim();		
 		
+		html = run2_render(src, page, html);
+				
+		out.getParentFile().mkdir();
+		FileUtils.write(out, html);
+		Log.i(LOGTAG, "Made "+out);
+	}
+
+	private String run2_render(File src2, String page, String html) {
 		if (FileUtils.getType(src).equals("html") || FileUtils.getType(src).equals("htm")) {
 			// html -- keep the page as-is
 		} else {
@@ -81,30 +90,26 @@ public class BuildJerbilPage {
 		
 		// Recursive fill in of file references
 		Pattern SECTION = Pattern.compile("<section\\s+src=['\"]([\\S'\"]+)['\"]\\s*/>", Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
-		for(int depth=0; depth<10; depth++) {
-			String html2 = StrUtils.replace(html, SECTION, new IReplace() {
-				@Override
-				public void appendReplacementTo(StringBuilder sb, Matcher match) {
-					String insert = match.group(1);
-					// TODO security check: not below webroot!
-					File fi = new File(insert);
-					if ( ! fi.isAbsolute()) fi = new File(dir, insert);
-					String text = FileUtils.read(fi);
-					// TODO recursive use of this doBuildHtml method -- but we don't want the whole template
-					MarkdownProcessor mp2 = new MarkdownProcessor();
-					String texthtml = mp2.markdown(text);
-					sb.append(texthtml);
-				}
-			});
-			if (html2.equals(html)) {
-				break;				
+//		for(int depth=0; depth<10; depth++) {
+		final String fhtml = html;
+		String html2 = StrUtils.replace(fhtml, SECTION, new IReplace() {
+			@Override
+			public void appendReplacementTo(StringBuilder sb, Matcher match) {
+				String insert = match.group(1);
+				// TODO security check: not below webroot!
+				File fi = new File(insert);
+				if ( ! fi.isAbsolute()) fi = new File(dir, insert);
+				String text = FileUtils.read(fi);
+				String sectionHtml = run2_render(fi, text, fhtml.substring(match.start(), match.end()-2)+"$contents</section>");
+				sb.append(sectionHtml);
 			}
-			html = html2;
-		}
-		
-		out.getParentFile().mkdir();
-		FileUtils.write(out, html);
-		Log.i(LOGTAG, "Made "+out);
+		});
+//			if (html2.equals(html)) {
+//				break;				
+//			}
+		html = html2;
+//		}
+		return html;
 	}
 
 	private String insertVariables(String html, String page) {

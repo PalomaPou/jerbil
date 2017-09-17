@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.petebevin.markdown.MarkdownProcessor;
 import com.winterwell.bob.BuildTask;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.io.WatchFiles;

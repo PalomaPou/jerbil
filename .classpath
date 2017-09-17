@@ -4,12 +4,11 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="build"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/flexmark-all-lib.jar"/>
+	<classpathentry kind="lib" path="lib/flexmark-all.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.bob"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.utils"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.web"/>
-	<classpathentry kind="lib" path="lib/markdownj-1.0.2b4-0.3.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="/middleware/flexmark/flexmark-all.jar"/>
-	<classpathentry kind="lib" path="/middleware/flexmark/flexmark-all-lib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
