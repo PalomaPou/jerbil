@@ -43,16 +43,34 @@ public class Markdown {
 	        	int tagEnd = html.indexOf("</h"+hi, i);
 	        	String h = WebUtils.stripTags(html.substring(i, tagEnd));
 	        	String cn = StrUtils.toCanonical(h).replaceAll("\\s+", "-");
-	        	int j = html.indexOf("<h1", i+1);
-	        	if (j==-1) j = html.length();
+	        	// where does this section end? when it hist the next header
+	        	int endOfSection = sectionEnd(html, hi, tagEnd+4);
 	        	String div = "<div class='h"+hi+"-section "+cn+"'>";
-	        	html = html.substring(0, i)+div+html.substring(i, j)+"</div><!-- ./"+cn+" -->"
-	        			+html.substring(j);
+	        	html = html.substring(0, i)+div+html.substring(i, endOfSection)+"</div><!-- ./"+cn+" -->\n"
+	        			+html.substring(endOfSection);
 	        	indx = i + div.length() + 1;
 	        }
         }
 //          System.out.println(html);
         return html;
+	}
+
+	/**
+	 * Find where this section ends -- which is when the next h tag (of same or higher rank) occurs,
+	 * or end of the page.
+	 * 
+	 * @param html
+	 * @param hi
+	 * @param openingHTagEnd
+	 * @return
+	 */
+	private static int sectionEnd(String html, int hi, int openingHTagEnd) {
+		int earliest = html.length();
+		for(int hi2 = 1; hi2 <= hi; hi2++) {
+			int j = html.indexOf("<h"+hi2, openingHTagEnd);
+			if (j!=-1 && j<earliest) earliest = j;
+		}
+		return earliest;
 	}
 
 }
