@@ -115,15 +115,23 @@ public class Jerbil {
 	 */
 	private static JerbilConfig getConfig(String[] args) {
 		JerbilConfig config = new JerbilConfig();
+		ConfigBuilder cb = new ConfigBuilder(config);
+		config = cb
+				.setFromMain(args)
+				.get();
+		
 		List<String> leftoverArgs = new ArrayList();
-		config = ArgsParser.getConfig(config, args, null, leftoverArgs);
 		File dir = config.projectdir!=null? config.projectdir : getConfig2_dir(leftoverArgs);
 		config.projectdir = dir;
 		// add config properties
 		File f = new File(dir, "config/jerbil.properties").getAbsoluteFile();
 		Log.d("init", "Looking for Jerbil config in:\n\t"+f.getAbsolutePath());
 		if (f.exists()) {
-			new ArgsParser(config).set(f);
+			cb = new ConfigBuilder(config);
+			config = cb
+					.set(f)
+					.setFromMain(args)
+					.get();
 		}
 		return config;	
 	}
