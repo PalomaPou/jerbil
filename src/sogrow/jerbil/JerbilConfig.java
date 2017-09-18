@@ -40,4 +40,9 @@ public class JerbilConfig {
 	
 	@Option
 	public Map<String,String> var = new HashMap();
+
+	@Option
+	public String webroot = "webroot";
+	@Option
+	public String pages = "pages";
 }

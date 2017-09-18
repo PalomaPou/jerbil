@@ -1,6 +1,8 @@
 package sogrow.jerbil;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension;
@@ -35,7 +37,8 @@ public class Markdown {
         Node document = parser.parse(page);
         String html = renderer.render(document);  // "<p>This is <em>Sparta</em></p>\n"
   
-        for(int hi=1; hi<6; hi++) {
+        // NB: must countdown, otherwise youd have to deal with spotting the divs it itself inserts
+        for(int hi=6; hi!=0; hi--) {
 	        int indx = 0;   
 	        while(true) {
 	        	int i = html.indexOf("<h"+hi, indx);
@@ -66,9 +69,17 @@ public class Markdown {
 	 */
 	private static int sectionEnd(String html, int hi, int openingHTagEnd) {
 		int earliest = html.length();
-		for(int hi2 = 1; hi2 <= hi; hi2++) {
+		for(int hi2 = hi; hi2 > 0; hi2--) {
 			int j = html.indexOf("<h"+hi2, openingHTagEnd);
 			if (j!=-1 && j<earliest) earliest = j;
+		}
+		for(int hi2 = hi; hi2 > 0; hi2--) {
+			Pattern p = Pattern.compile("<\\w[^>]+class=[^>]+start-h"+hi2);
+			Matcher m = p.matcher(html);
+			if (m.find(openingHTagEnd)) {
+				int j = m.start(); // html.indexOf(".start-h"+hi2, openingHTagEnd);
+				if (j!=-1 && j<earliest) earliest = j;
+			}
 		}
 		return earliest;
 	}

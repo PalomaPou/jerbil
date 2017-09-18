@@ -7,6 +7,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/flexmark-all-lib.jar"/>
 	<classpathentry kind="lib" path="lib/flexmark-all.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-3.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.bob"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.utils"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.web"/>

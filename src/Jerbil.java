@@ -47,7 +47,7 @@ public class Jerbil {
 	private static BuildJerbilWebSite b;
 	private static GitCheck gitCheck;
 
-	public static final String VERSION = "0.2.1";
+	public static final String VERSION = "0.3.0";
 	
 	/**
 	 * Watch for edits and keep rebuilding!
@@ -148,19 +148,36 @@ public class Jerbil {
 	}
 
 	protected static void runWatcher(JerbilConfig config) throws IOException {		
-		System.out.println("Watching "+b.getProjectDir()+"/pages for edits");
+		System.out.println("Watching "+b.getProjectDir()+"/"+config.pages+" + html templates for edits");
 		
-		WatchFiles watch = new WatchFiles();
-		watch.addFile(new File(b.getProjectDir(), "pages"));
-		watch.addListener(new IListenToFileEvents() {
-			@Override
-			public void processEvent(FileEvent pair2) {
-				b.run();
-			}			
-		});				
-		
-		Thread watchThread = new Thread(watch);
-		watchThread.setName("watch-"+b.getProjectDir().getName());
-		watchThread.start();		
+		{
+			WatchFiles watch = new WatchFiles();
+			watch.addFile(new File(b.getProjectDir(), config.pages));
+			watch.addListener(new IListenToFileEvents() {
+				@Override
+				public void processEvent(FileEvent pair2) {
+					b.run();
+				}			
+			});						
+			Thread watchThread = new Thread(watch);
+			watchThread.setName("watch-"+b.getProjectDir().getName());
+			watchThread.start();
+		}
+		{	// templates
+			WatchFiles watch = new WatchFiles();
+			watch.addFile(new File(b.getProjectDir(), config.webroot));
+			watch.addListener(new IListenToFileEvents() {
+				@Override
+				public void processEvent(FileEvent fe) {
+					if (fe.file.getName().equals("template.html")) {
+						b.run();
+					}
+					// TODO less compilation also
+				}			
+			});						
+			Thread watchThread = new Thread(watch);
+			watchThread.setName("watch-"+b.getProjectDir().getName());
+			watchThread.start();
+		}
 	}
 }
