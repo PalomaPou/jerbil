@@ -133,6 +133,7 @@ public class Jerbil {
 					.setFromMain(args)
 					.get();
 		}
+		Log.d("init", "Config:	"+config);
 		return config;	
 	}
 
