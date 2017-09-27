@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+import com.winterwell.utils.Dep;
+import com.winterwell.utils.Environment;
 import com.winterwell.utils.IReplace;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
@@ -14,6 +15,7 @@ import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Time;
+import com.winterwell.web.fields.SField;
 
 // TODO mo
 public class BuildJerbilPage {
@@ -109,6 +111,19 @@ public class BuildJerbilPage {
 //			}
 		html = html2;
 //		}
+		// Jerbil version marker
+		html = addJerbilVersionMarker(html);
+		
+		return html;
+	}
+
+	private String addJerbilVersionMarker(String html) {
+		JerbilConfig jc = Dep.get(JerbilConfig.class);
+		if (jc.noJerbilMarker) return html;
+		String v = Environment.get().get(new SField("jerbil.version"));
+		String markerInfo = "<meta name='generator' content='Jerbil v"+v+"' />\n";
+		html = html.replace("</head>", markerInfo+"</head>");
+		html = html.replace("</HEAD>", markerInfo+"</HEAD>");
 		return html;
 	}
 

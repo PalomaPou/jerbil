@@ -51,4 +51,7 @@ public class JerbilConfig {
 	public String webroot = "webroot";
 	@Option
 	public String pages = "pages";
+
+	@Option
+	public boolean noJerbilMarker;
 }

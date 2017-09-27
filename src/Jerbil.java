@@ -7,6 +7,8 @@ import java.util.logging.Level;
 
 import javax.servlet.http.HttpServlet;
 
+import com.winterwell.utils.Dep;
+import com.winterwell.utils.Environment;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.gui.GuiUtils;
 import com.winterwell.utils.io.ArgsParser;
@@ -20,6 +22,7 @@ import com.winterwell.utils.web.WebUtils;
 import com.winterwell.utils.web.WebUtils2;
 import com.winterwell.web.app.FileServlet;
 import com.winterwell.web.app.JettyLauncher;
+import com.winterwell.web.fields.SField;
 
 import sogrow.jerbil.BuildJerbilWebSite;
 import sogrow.jerbil.GitCheck;
@@ -47,7 +50,7 @@ public class Jerbil {
 	private static BuildJerbilWebSite b;
 	private static GitCheck gitCheck;
 
-	public static final String VERSION = "0.3.0";
+	public static final String VERSION = "0.3.1";
 	
 	/**
 	 * Watch for edits and keep rebuilding!
@@ -55,7 +58,8 @@ public class Jerbil {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		JerbilConfig config = getConfig(args);		
+		Environment.get().put(new SField("jerbil.version"), VERSION);
+		JerbilConfig config = getConfig(args);
 		if (args.length==1 && "--help".equals(args[0])) {
 			System.out.println(new ConfigBuilder(config).getOptionsMessage());
 			return;
@@ -134,6 +138,7 @@ public class Jerbil {
 					.get();
 		}
 		Log.d("init", "Config:	"+config);
+		Dep.set(JerbilConfig.class, config);
 		return config;	
 	}
 
