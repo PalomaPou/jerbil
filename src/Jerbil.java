@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -13,6 +14,8 @@ import com.winterwell.utils.Utils;
 import com.winterwell.utils.gui.GuiUtils;
 import com.winterwell.utils.io.ArgsParser;
 import com.winterwell.utils.io.ConfigBuilder;
+import com.winterwell.utils.io.ConfigFactory;
+import com.winterwell.utils.io.ConfigFactoryTest;
 import com.winterwell.utils.io.FileEvent;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.io.WatchFiles;
@@ -118,13 +121,11 @@ public class Jerbil {
 	 * @return Can be null
 	 */
 	private static JerbilConfig getConfig(String[] args) {
-		JerbilConfig config = new JerbilConfig();
-		ConfigBuilder cb = new ConfigBuilder(config);
-		config = cb
-				.setFromMain(args)
-				.get();
+		ConfigFactory cf = ConfigFactory.get().setArgs(args);
+		ConfigBuilder cb = cf.getConfigBuilder(JerbilConfig.class);
+		JerbilConfig config = cb.get();
 		
-		List<String> leftoverArgs = new ArrayList();
+		List<String> leftoverArgs = cb.getRemainderArgs();
 		File dir = config.projectdir!=null? config.projectdir : getConfig2_dir(leftoverArgs);
 		config.projectdir = dir;
 		// add config properties

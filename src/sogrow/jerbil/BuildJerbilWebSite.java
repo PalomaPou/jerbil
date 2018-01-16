@@ -77,12 +77,14 @@ public class BuildJerbilWebSite extends BuildTask {
 			throw Utils.runtime(new IOException("Not a directory: "+dir));
 		}
 		for(File f : dir.listFiles()) {
-			if (f.isFile()) {
-				File template = getTemplate(webroot);
-				assert template != null : "No html template?! "+webroot;
+			if (f.isFile()) {				
 				String relpath = FileUtils.getRelativePath(f, pages);		
 				File out = new File(webroot, relpath);		
-				out = FileUtils.changeType(out, "html");				
+				out = FileUtils.changeType(out, "html");
+				
+				File template = getTemplate(out);
+				assert template != null : "No html template?! "+webroot;
+				
 				BuildJerbilPage bjp = new BuildJerbilPage(f, out, template);
 				Map<String, String> vars = config.var;
 				bjp.setVars(vars);
@@ -95,10 +97,11 @@ public class BuildJerbilWebSite extends BuildTask {
 		}
 	}
 
-	protected File getTemplate(File f) {
-		File dir = f.isDirectory()? f : f.getParentFile();
+	protected File getTemplate(File outputFile) {
+		File dir = outputFile.isDirectory()? outputFile : outputFile.getParentFile();
 		File tf = new File(dir, "template.html");
 		if (tf.exists()) return tf;
+		// recurse??
 		// default
 		return new File(webroot, "template.html");
 	}
