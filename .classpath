@@ -5,11 +5,21 @@
 	<classpathentry kind="src" path="build"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/flexmark-all-lib.jar"/>
-	<classpathentry kind="lib" path="lib/flexmark-all.jar"/>
-	<classpathentry kind="lib" path="lib/servlet-api-3.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.bob"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.utils"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.web"/>
+	<classpathentry kind="lib" path="lib/bob.jar"/>
+	<classpathentry kind="lib" path="lib/flexmark-all-lib.jar"/>
+	<classpathentry kind="lib" path="lib/flexmark-all.jar"/>
+	<classpathentry kind="lib" path="lib/javax.servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-http.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-io.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-security.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-server.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-servlet.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-ajax.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util.jar"/>
+	<classpathentry kind="lib" path="lib/winterwell.utils.jar"/>
+	<classpathentry kind="lib" path="lib/winterwell.web.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

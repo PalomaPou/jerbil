@@ -91,7 +91,7 @@ public class Jerbil {
 			gitCheck.start();
 		}
 		
-		if (config.server && ! config.preview) {
+		if (config.server && config.preview) {
 			WebUtils2.display(WebUtils.URI("http://localhost:"+config.port));
 		}
 		// spin the main thread
@@ -101,12 +101,13 @@ public class Jerbil {
 	}
 
 	private static void runServer(JerbilConfig config) {
-		JettyLauncher jl = new JettyLauncher(b.getWebroot(), config.port);
+		File webroot = b.getWebroot();
+		JettyLauncher jl = new JettyLauncher(webroot, config.port);
 		jl.setWebXmlFile(null);
 		jl.setCanShutdown(false);
 		jl.setup();		
 		
-		HttpServlet fileServer = new FileServlet();
+		HttpServlet fileServer = new FileServlet().setBaseDir(webroot);
 		//		DynamicHttpServlet dynamicRouter = new DynamicHttpServlet();
 //		jl.addServlet("/*", dynamicRouter);
 		jl.addServlet("/*", fileServer);

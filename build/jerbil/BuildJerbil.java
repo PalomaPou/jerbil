@@ -34,7 +34,7 @@ public class BuildJerbil extends BuildWinterwellProject {
 	public void doTask() throws Exception {	
 		super.doTask();
 		// dependencies
-		File libdir = new File("lib");
+		File libdir = new File("lib").getAbsoluteFile();
 //		FileUtils.deleteDir(libdir);
 		libdir.mkdirs();
 		assert libdir.isDirectory() : libdir;
@@ -46,9 +46,10 @@ public class BuildJerbil extends BuildWinterwellProject {
 				}) 
 		{
 			bwp.setIncSrc(true);
+			bwp.setOutDir(libdir);
 			bwp.run();
-			File jar = bwp.getJar();
-			FileUtils.copy(jar, new File(libdir, jar.getName()));
+//			File jar = bwp.getJar();
+//			FileUtils.copy(jar, new File(libdir, jar.getName()));
 		}
 				
 //		// 3rd party
