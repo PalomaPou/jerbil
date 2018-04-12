@@ -24,6 +24,7 @@ public class GitCheck extends TimerTask {
 	private File dir;
 	private Timer timer;
 	private Dt dt;
+	private Throwable error;
 
 	public GitCheck(File projectdir, Dt dt) {
 		this.dir = projectdir;
@@ -48,10 +49,11 @@ public class GitCheck extends TimerTask {
 			pull.run();
 			String out = pull.getOutput();
 			pull.close();
-			
+			error = null;	
 			Log.d("gitcheck", out);
-		} catch(Throwable ex) {
-			Log.escalate(ex);
+		} catch(Throwable ex) {			
+			error = ex;
+			Log.e("GitCheck", ex);
 			// stop??
 		}
 	}
@@ -62,13 +64,16 @@ public class GitCheck extends TimerTask {
 	}
 
 	public boolean isGitDir() {
-		try {
-			Map<String, Object> info = GitTask.getLastCommitInfo(dir);
-			System.out.println(info);	
-			return true;
-		} catch(IllegalArgumentException ex) {
-			return false;
-		}
+		if (new File(dir, ".git").isDirectory()) return true;
+		return false;
+		
+//		try {
+//			Map<String, Object> info = GitTask.getLastCommitInfo(dir);
+//			System.out.println(info);	
+//			return true;
+//		} catch(IllegalArgumentException ex) {			
+//			return false;
+//		}
 	}
 
 }
