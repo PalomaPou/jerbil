@@ -41,7 +41,7 @@ public class BuildJerbilPage {
 	Map<String, Object> var = new HashMap();
 	
 	public void setVars(Map<String, ?> vars) {
-		this.var = (Map) vars;
+		this.var = new HashMap(vars); // defensive copy to avoid accidental shared structure
 	}
 
 	void run() {
