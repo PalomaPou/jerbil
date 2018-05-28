@@ -129,7 +129,8 @@ public class BuildJerbilPage {
 
 	private String insertVariables(String html, String page) {
 		// TODO key: value at the top of file -> javascript jerbil.key = value variables
-		// TODO files -> safely restricted file access??		
+		// TODO files -> safely restricted file access??
+		html = html.replace("$generator", "Jerbil version "+JerbilConfig.VERSION);
 		html = html.replace("$contents", page);
 		html = html.replace("$webroot", ""); // TODO if dir is a sub-dir of webroot, put in a local path here, e.g. ".." 
 		long modtime = src.lastModified();

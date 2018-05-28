@@ -52,15 +52,13 @@ public class Jerbil {
 	private static BuildJerbilWebSite b;
 	private static GitCheck gitCheck;
 
-	public static final String VERSION = "0.3.1";
-	
 	/**
 	 * Watch for edits and keep rebuilding!
 	 * @param args
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		Environment.get().put(new SField("jerbil.version"), VERSION);
+		Environment.get().put(new SField("jerbil.version"), JerbilConfig.VERSION);
 		JerbilConfig config = getConfig(args);
 		if (args.length==1 && "--help".equals(args[0])) {
 			System.out.println(new ConfigBuilder(config).getOptionsMessage());
