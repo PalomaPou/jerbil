@@ -1,12 +1,11 @@
-package sogrow.jerbil;
+package com.goodloop.jerbil;
 
 import java.io.File;
 
 import org.junit.Test;
 
 import com.winterwell.utils.time.TUnit;
-
-
+import com.goodloop.jerbil.GitCheck;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.time.TUnit;
 

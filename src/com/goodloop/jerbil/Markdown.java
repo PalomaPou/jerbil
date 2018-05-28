@@ -1,4 +1,4 @@
-package sogrow.jerbil;
+package com.goodloop.jerbil;
 
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -8,22 +8,31 @@ import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
+import com.vladsch.flexmark.ext.wikilink.WikiLinkExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.options.MutableDataSet;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.web.WebUtils;
 
+/**
+ * Utility class for calling flexmark
+ * @author daniel
+ *
+ */
 public class Markdown {
 
 	public static String render(String page) {
-		MutableDataSet options = new MutableDataSet();
-
+		MutableDataSet options = new MutableDataSet();		
+		
         // uncomment to set optional extensions
-        options.set(Parser.EXTENSIONS, Arrays.asList(
-        		TablesExtension.create(), 
-        		StrikethroughExtension.create()
-        		, AnchorLinkExtension.create()
+        options.set(
+        		Parser.EXTENSIONS, Arrays.asList(
+        			TablesExtension.create(), 
+        			StrikethroughExtension.create(),
+        			AnchorLinkExtension.create(),
+        			WikiLinkExtension.create()
+        			,JerbilLinkResolverExtension.create()
         		));
 
         // uncomment to convert soft-breaks to hard breaks

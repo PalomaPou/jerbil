@@ -1,4 +1,4 @@
-package sogrow.jerbil;
+package com.goodloop.jerbil;
 
 import java.io.File;
 import java.util.Map;

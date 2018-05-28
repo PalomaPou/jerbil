@@ -8,6 +8,9 @@ import java.util.logging.Level;
 
 import javax.servlet.http.HttpServlet;
 
+import com.goodloop.jerbil.BuildJerbilWebSite;
+import com.goodloop.jerbil.GitCheck;
+import com.goodloop.jerbil.JerbilConfig;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.Environment;
 import com.winterwell.utils.Utils;
@@ -26,10 +29,6 @@ import com.winterwell.utils.web.WebUtils2;
 import com.winterwell.web.app.FileServlet;
 import com.winterwell.web.app.JettyLauncher;
 import com.winterwell.web.fields.SField;
-
-import sogrow.jerbil.BuildJerbilWebSite;
-import sogrow.jerbil.GitCheck;
-import sogrow.jerbil.JerbilConfig;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.log.Log;
 
@@ -168,7 +167,7 @@ public class Jerbil {
 		
 		{
 			WatchFiles watch = new WatchFiles();
-			watch.addFile(new File(b.getProjectDir(), config.pages));
+			watch.addFile(config.getPagesDir());
 			watch.addListener(new IListenToFileEvents() {
 				@Override
 				public void processEvent(FileEvent pair2) {

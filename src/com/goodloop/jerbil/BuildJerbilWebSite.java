@@ -1,4 +1,4 @@
-package sogrow.jerbil;
+package com.goodloop.jerbil;
 
 
 import java.io.File;
@@ -46,14 +46,14 @@ public class BuildJerbilWebSite extends BuildTask {
 	public BuildJerbilWebSite(File projectDir) {
 		config = new JerbilConfig();
 		config.projectdir = projectDir;
-		pages = new File(projectDir, "pages");
-		webroot = new File(projectDir, "webroot");
+		pages = config.getPagesDir();
+		webroot = config.getWebRootDir();
 	}
 	
 	public BuildJerbilWebSite(JerbilConfig config) {
 		this.config = config;
-		pages = new File(config.projectdir, "pages");
-		webroot = new File(config.projectdir, "webroot");
+		pages = config.getPagesDir();
+		webroot = config.getWebRootDir();
 	}
 	
 	@Override

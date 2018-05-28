@@ -1,4 +1,4 @@
-package sogrow.jerbil;
+package com.goodloop.jerbil;
 
 import java.io.File;
 import java.util.HashMap;
@@ -33,6 +33,7 @@ public class JerbilConfig {
 	@Option(description="The port to connect to. If you wish to use Jerbil as your primary server, then set this to 80. The standard setup is to use e.g. nginx instead.")
 	public int port = 8282;
 	
+	@Option
 	public File projectdir;	
 	
 	@Option(description="If the site is in a git-managed directory, then regularly call git pull to keep it up to date. A no-config-required alternative to web-hooks.")
@@ -52,6 +53,14 @@ public class JerbilConfig {
 	@Option
 	public String pages = "pages";
 
+	public File getPagesDir() {
+		return new File(projectdir, pages);
+	}
+	
 	@Option
 	public boolean noJerbilMarker;
+
+	public File getWebRootDir() {
+		return new File(projectdir, webroot);
+	}
 }
