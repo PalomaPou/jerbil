@@ -99,13 +99,13 @@ class JerbilLinkResolver implements LinkResolver {
 		LinkType lt = arg2.getLinkType();
 		String url = arg2.getUrl(); // e.g. Publishers-How-to-install-Good-Loop-on-your-site
 		// no protocol or path?
-		if ( ! url.startsWith("http") && ! url.startsWith("/") && ! url.startsWith("#")) {
-			Log.d("linkresolver", Printer.str(Arrays.asList(url)));
+		if ( ! url.startsWith("http") && ! url.startsWith("/") && ! url.startsWith("#")) {			
 			File pd = config.getPagesDir();
 			
 			String canonUrl = canon(url);
 			List<File> match = FileUtils.find(pd, f -> canonUrl.equals(canon(f.getName())));
 			if (match.isEmpty()) {
+				Log.d("linkresolver", Printer.str(Arrays.asList(url))+" - no match");
 				return arg2;
 			}
 			String rpath = FileUtils.getRelativePath(match.get(0), config.getPagesDir());
@@ -114,7 +114,9 @@ class JerbilLinkResolver implements LinkResolver {
 			if ( ! url2.endsWith(".html")) {
 				url2 += ".html"; // NB: if no type, changeType doesnt add??
 			}
-			return arg2.withUrl(url2);
+			Log.d("linkresolver", Printer.str(Arrays.asList(url))+" -> "+match.get(0));
+			ResolvedLink resolved = arg2.withUrl(url2);
+			return resolved;
 		}
 		return arg2;
 	}
