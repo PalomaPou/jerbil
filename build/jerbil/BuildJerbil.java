@@ -18,6 +18,11 @@ import jobs.BuildUtils;
 import jobs.BuildWeb;
 import jobs.BuildWinterwellProject;
 
+/**
+ * ??How to build jerbil-all.jar??
+ * @author daniel
+ *
+ */
 public class BuildJerbil extends BuildWinterwellProject {
 
 	public BuildJerbil() {
