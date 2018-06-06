@@ -1,9 +1,12 @@
 package jerbil;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
+import com.winterwell.bob.tasks.BigJarTask;
 import com.winterwell.bob.tasks.CopyTask;
 import com.winterwell.bob.tasks.EclipseClasspath;
 import com.winterwell.bob.tasks.JarTask;
@@ -64,6 +67,14 @@ public class BuildJerbil extends BuildWinterwellProject {
 //		CopyTask copy = new CopyTask(jars, libdir).setOverwriteIfNewer(true);	
 //		copy.setExceptionOnDuplicate(true);
 //		copy.run();			
+		
+		// bundle
+		List<File> jars = FileUtils.find(libdir, ".*\\.jar");
+		jars.add(0, getJar());
+		File fatjar = new File("jerbil-all.jar");
+		BigJarTask jt = new BigJarTask(fatjar, jars);
+		jt.setManifestProperty(jt.MANIFEST_MAIN_CLASS, "Jerbil");
+		jt.run();
 	}
 
 }
