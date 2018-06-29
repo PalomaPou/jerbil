@@ -1,1 +1,1 @@
-java -cp jerbil.jar:lib/* Jerbil
+java -jar jerbil-all.jar
