@@ -75,6 +75,7 @@ public class BuildJerbil extends BuildWinterwellProject {
 		BigJarTask jt = new BigJarTask(fatjar, jars);
 		jt.setManifestProperty(jt.MANIFEST_MAIN_CLASS, "Jerbil");
 		jt.run();
+		report.put("fat-jar", getJar().getAbsolutePath());
 	}
 
 }
