@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import com.goodloop.jerbil.BuildJerbilWebSite;
 import com.goodloop.jerbil.GitCheck;
 import com.goodloop.jerbil.JerbilConfig;
+import com.goodloop.jerbil.SimpleManifestServlet;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.Environment;
 import com.winterwell.utils.Utils;
@@ -27,6 +28,7 @@ import com.winterwell.utils.log.Log;
 import com.winterwell.utils.web.WebUtils;
 import com.winterwell.utils.web.WebUtils2;
 import com.winterwell.web.app.FileServlet;
+import com.winterwell.web.app.HttpServletWrapper;
 import com.winterwell.web.app.JettyLauncher;
 import com.winterwell.web.fields.SField;
 import com.winterwell.utils.Utils;
@@ -102,12 +104,12 @@ public class Jerbil {
 		JettyLauncher jl = new JettyLauncher(webroot, config.port);
 		jl.setWebXmlFile(null);
 		jl.setCanShutdown(false);
-		jl.setup();		
-		
+		jl.setup();				
 		HttpServlet fileServer = new FileServlet().setBaseDir(webroot);
-		//		DynamicHttpServlet dynamicRouter = new DynamicHttpServlet();
-//		jl.addServlet("/*", dynamicRouter);
-		jl.addServlet("/*", fileServer);
+		// servlets
+		jl.addServlet("/manifest", new HttpServletWrapper(SimpleManifestServlet.class));
+		jl.addServlet("/*", fileServer);		
+		
 		Log.report("web", "...Launching Jetty web server on port "+config.port, Level.INFO);
 		
 		jl.run();		
