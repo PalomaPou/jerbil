@@ -128,16 +128,19 @@ public class Jerbil {
 		List<String> leftoverArgs = cb.getRemainderArgs();
 		File dir = config.projectdir!=null? config.projectdir : getConfig2_dir(leftoverArgs);
 		config.projectdir = dir;
-		// add config properties
-		File f = new File(dir, "config/jerbil.properties").getAbsoluteFile();
-		Log.d("init", "Looking for Jerbil config in:\n\t"+f.getAbsolutePath());
-		if (f.exists()) {
-			cb = new ConfigBuilder(config);
-			config = cb
-					.set(f)
-					.setFromMain(args)
-					.get();
+		// add dir's config properties, which could have been missed by the "global" files above
+		File f1 = new File(dir, "config/jerbil.properties").getAbsoluteFile();
+		File f2 = new File(dir, "config/"+cf.getMachine()+".properties").getAbsoluteFile();
+		for(File f : new File[] {f1,f2}) {
+			if (f.exists()) {
+				cb = new ConfigBuilder(config);
+				config = cb
+						.set(f)
+						.setFromMain(args) // args walways win
+						.get();
+			}
 		}
+		
 		Log.d("init", "Config:	"+config);
 		Dep.set(JerbilConfig.class, config);
 		return config;	
