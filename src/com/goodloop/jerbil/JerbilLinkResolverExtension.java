@@ -1,7 +1,6 @@
 package com.goodloop.jerbil;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -9,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 import com.vladsch.flexmark.ast.Node;
-import com.vladsch.flexmark.html.LinkResolver;
-import com.vladsch.flexmark.html.LinkResolverFactory;
 import com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
+import com.vladsch.flexmark.html.LinkResolver;
+import com.vladsch.flexmark.html.LinkResolverFactory;
 import com.vladsch.flexmark.html.renderer.LinkResolverContext;
 import com.vladsch.flexmark.html.renderer.LinkType;
 import com.vladsch.flexmark.html.renderer.ResolvedLink;
