@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Collection;
 
 import com.winterwell.bob.BuildTask;
+import com.winterwell.bob.tasks.SCPTask;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.io.FileUtils;
 
@@ -13,7 +14,9 @@ import jobs.BuildWeb;
 import jobs.BuildWinterwellProject;
 
 /**
- * ??How to build jerbil-all.jar??
+ * The latest Jerbil bundle can be downloaded from
+ * https://www.winterwell.com/software/downloads/jerbil-all.jar
+ * 
  * @author daniel
  *
  */
@@ -23,6 +26,7 @@ public class BuildJerbil extends BuildWinterwellProject {
 		super(new File(FileUtils.getWinterwellDir(), "jerbil"));
 		setIncSrc(true);
 		setMainClass("Jerbil");
+		setScpToWW(true);
 	}
 	
 
@@ -39,9 +43,20 @@ public class BuildJerbil extends BuildWinterwellProject {
 
 	@Override
 	public void doTask() throws Exception {	
-//		super.doTask();		
+		super.doTask();		
 		// bundle
-		doFatJar();
+		File fatJar = doFatJar();
+		// ship?
+		if (scpToWW) {
+			String remoteJar = "/home/winterwell/public-software/"+fatJar.getName();
+			SCPTask scp = new SCPTask(fatJar, "winterwell@winterwell.com",				
+					remoteJar);
+			// this is online at: https://www.winterwell.com/software/downloads
+			scp.setMkdirTask(false);
+			scp.run();
+//			scp.runInThread(); no, wait for it to finish
+			report.put("scp to remote", "winterwell.com:"+remoteJar);
+		}
 	}
 
 

@@ -52,6 +52,10 @@ public class Jerbil {
 		Environment.get().put(new SField("jerbil.version"), JerbilConfig.VERSION);
 		JerbilConfig config = getConfig(args);
 		if (args.length==1 && "--help".equals(args[0])) {
+			System.out.println("");
+			System.out.println("Jerbil website builder, version "+JerbilConfig.VERSION);
+			System.out.println("----------------------------------------");
+			System.out.println("");
 			System.out.println(new ConfigBuilder(config).getOptionsMessage());
 			return;
 		}
