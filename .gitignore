@@ -1,5 +1,10 @@
 *.class
 
+# not allowing any HTML files
+*.html
+# ALLOWING only the 'template.html' file
+!template.html
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
