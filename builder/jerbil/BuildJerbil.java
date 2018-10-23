@@ -8,10 +8,10 @@ import com.winterwell.bob.tasks.SCPTask;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.io.FileUtils;
 
-import jobs.BuildBob;
-import jobs.BuildUtils;
-import jobs.BuildWeb;
-import jobs.BuildWinterwellProject;
+import com.winterwell.bob.wwjobs.BuildBob;
+import com.winterwell.bob.wwjobs.BuildUtils;
+import com.winterwell.bob.wwjobs.BuildWeb;
+import com.winterwell.bob.wwjobs.BuildWinterwellProject;
 
 /**
  * The latest Jerbil bundle can be downloaded from
