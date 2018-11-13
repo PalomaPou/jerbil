@@ -98,7 +98,7 @@ public class Jerbil {
 		jl.setWebXmlFile(null);
 		jl.setCanShutdown(false);
 		jl.setup();				
-		HttpServlet fileServer = new FileServlet().setBaseDir(webroot);
+		HttpServlet fileServer = new FileServlet(webroot);
 		// servlets
 		jl.addServlet("/manifest", new HttpServletWrapper(SimpleManifestServlet.class));
 		jl.addServlet("/*", fileServer);		
