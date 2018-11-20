@@ -1,8 +1,8 @@
 # jerbil
 A *very* simple fast file-based CMS: markdown format text files + html templates.
 
-Status: NOT READY YET! 
-We use this tool internally. We are working on packaging it for others to use.
+Status: alpha   
+We use this tool internally and it is 100% ready. We are working on nice packaging for others to use.
 
 ## Basic use
 
