@@ -8,7 +8,6 @@ import com.winterwell.bob.tasks.SCPTask;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.io.FileUtils;
 
-import com.winterwell.bob.wwjobs.BuildBob;
 import com.winterwell.bob.wwjobs.BuildUtils;
 import com.winterwell.bob.wwjobs.BuildWeb;
 import com.winterwell.bob.wwjobs.BuildWinterwellProject;
@@ -27,15 +26,16 @@ public class BuildJerbil extends BuildWinterwellProject {
 		setIncSrc(true);
 		setMainClass("Jerbil");
 		setScpToWW(true);
+		setMakeFatJar(true);
 	}
 	
 
 	@Override
 	public Collection<? extends BuildTask> getDependencies() {
 		ArraySet list = new ArraySet(super.getDependencies());
-		list.add(new BuildUtils());
-		list.add(new BuildWeb());
-		list.add(new BuildBob());
+//		list.add(new BuildUtils());
+//		list.add(new BuildWeb());
+//		list.add(new BuildBob());
 		return list;
 	}
 	
@@ -44,19 +44,6 @@ public class BuildJerbil extends BuildWinterwellProject {
 	@Override
 	public void doTask() throws Exception {	
 		super.doTask();		
-		// bundle
-		File fatJar = doFatJar();
-		// ship?
-		if (scpToWW) {
-			String remoteJar = "/home/winterwell/public-software/"+fatJar.getName();
-			SCPTask scp = new SCPTask(fatJar, "winterwell@winterwell.com",				
-					remoteJar);
-			// this is online at: https://www.winterwell.com/software/downloads
-			scp.setMkdirTask(false);
-			scp.run();
-//			scp.runInThread(); no, wait for it to finish
-			report.put("scp to remote", "winterwell.com:"+remoteJar);
-		}
 	}
 
 
