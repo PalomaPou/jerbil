@@ -51,6 +51,7 @@ public class Jerbil {
 	public static void main(String[] args) throws IOException {
 		Environment.get().put(new SField("jerbil.version"), JerbilConfig.VERSION);
 		JerbilConfig config = getConfig(args);
+		
 		if (args.length==1 && "--help".equals(args[0])) {
 			System.out.println("");
 			System.out.println("Jerbil website builder, version "+JerbilConfig.VERSION);
@@ -145,8 +146,9 @@ public class Jerbil {
 			return dir;
 		}		
 		// are we in a Jerbil dir?
-		if (new File(FileUtils.getWorkingDirectory(), "webroot").isDirectory()) {
-			return FileUtils.getWorkingDirectory();
+		File wd = FileUtils.getWorkingDirectory();
+		if (new File(wd, "webroot").isDirectory() || new File(wd, "config/jerbil.properties").isFile()) {
+			return wd;
 		}			
 		// Ask
 		File dir = GuiUtils.selectFile("Pick website project's base directory", null, new FileFilter() {				
