@@ -4,13 +4,9 @@ import java.io.File;
 import java.util.Collection;
 
 import com.winterwell.bob.BuildTask;
-import com.winterwell.bob.tasks.SCPTask;
+import com.winterwell.bob.wwjobs.BuildWinterwellProject;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.io.FileUtils;
-
-import com.winterwell.bob.wwjobs.BuildUtils;
-import com.winterwell.bob.wwjobs.BuildWeb;
-import com.winterwell.bob.wwjobs.BuildWinterwellProject;
 
 /**
  * The latest Jerbil bundle can be downloaded from
