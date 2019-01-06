@@ -1,7 +1,7 @@
 package jerbil;
 
 import java.io.File;
-import java.util.Collection;
+import java.util.List;
 
 import com.winterwell.bob.BuildTask;
 import com.winterwell.bob.wwjobs.BuildWinterwellProject;
@@ -27,8 +27,8 @@ public class BuildJerbil extends BuildWinterwellProject {
 	
 
 	@Override
-	public Collection<? extends BuildTask> getDependencies() {
-		ArraySet list = new ArraySet(super.getDependencies());
+	public List<BuildTask> getDependencies() {
+		List<BuildTask> list = super.getDependencies();
 //		list.add(new BuildUtils());
 //		list.add(new BuildWeb());
 //		list.add(new BuildBob());
