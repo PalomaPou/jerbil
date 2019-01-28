@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.vladsch.flexmark.ast.Document;
 import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
@@ -94,6 +95,7 @@ class JerbilLinkResolver implements LinkResolver {
 	@Override
 	public ResolvedLink resolveLink(Node arg0, LinkResolverContext arg1, ResolvedLink arg2) {
 		Log.d("linkresolver", Printer.str(Arrays.asList(arg0, arg1, arg2)));
+		Document doc = arg1.getDocument();
 		String target = arg2.getTarget();
 		LinkType lt = arg2.getLinkType();
 		String url = arg2.getUrl(); // e.g. Publishers-How-to-install-Good-Loop-on-your-site
@@ -108,8 +110,9 @@ class JerbilLinkResolver implements LinkResolver {
 				return arg2;
 			}
 			String rpath = FileUtils.getRelativePath(match.get(0), config.getPagesDir());
-			File htmlpath = FileUtils.changeType(new File(rpath), "html");
-			String url2 = htmlpath.toString();
+			File htmlpath = FileUtils.changeType(new File(rpath), "html");			
+			String url2 = "/"+htmlpath; // otherwise we get the full-web-path handled as a relative path
+			// NB: relative paths would be nice - but would require knowing the relative path for the doc (a faff to get here)
 			if ( ! url2.endsWith(".html")) {
 				url2 += ".html"; // NB: if no type, changeType doesnt add??
 			}

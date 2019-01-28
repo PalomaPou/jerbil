@@ -13,7 +13,7 @@ import com.winterwell.utils.time.TUnit;
 
 public class JerbilConfig {
 	
-	public static final String VERSION = "0.4.3";
+	public static final String VERSION = "0.4.4";
 	
 	@Override
 	public String toString() {
