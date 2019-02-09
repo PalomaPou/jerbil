@@ -10,6 +10,7 @@ import com.goodloop.jerbil.BuildJerbilWebSite;
 import com.goodloop.jerbil.GitCheck;
 import com.goodloop.jerbil.JerbilConfig;
 import com.goodloop.jerbil.SimpleManifestServlet;
+import com.winterwell.bob.Bob;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.Environment;
 import com.winterwell.utils.Utils;
@@ -50,27 +51,33 @@ public class Jerbil {
 	 */
 	public static void main(String[] args) throws IOException {
 		Environment.get().put(new SField("jerbil.version"), JerbilConfig.VERSION);
-		JerbilConfig config = getConfig(args);
-		
+
+		// help?
 		if (args.length==1 && "--help".equals(args[0])) {
 			System.out.println("");
 			System.out.println("Jerbil website builder, version "+JerbilConfig.VERSION);
 			System.out.println("----------------------------------------");
 			System.out.println("");
-			System.out.println(new ConfigBuilder(config).getOptionsMessage());
+			System.out.println(new ConfigBuilder(new JerbilConfig()).getOptionsMessage());
 			return;
 		}
+
+		JerbilConfig config = getConfig(args);
+		
 		if (config.projectdir==null) {
 			System.out.println("Run in a Jerbil website project directory -- or with the path to one as a parameter.");
 			return;
 		}
 		// build
-		b = new BuildJerbilWebSite(config);		
+		b = new BuildJerbilWebSite(config);
 		b.run();
 		// exit?
 		if (config.exit) {
 			return;
 		}
+		// NB: dont skip repeat builds (otherwise watch-for-updates doesnt work)
+		Bob.getSingleton().getSettings().skippingOff = true;
+		
 		// run a web server?
 		if (config.server) {
 			runServer(config);

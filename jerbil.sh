@@ -1,1 +1,1 @@
-java -jar ~/winterwell/jerbil/jerbil-all.jar
+java -jar ~/winterwell/jerbil/jerbil-all.jar $@
