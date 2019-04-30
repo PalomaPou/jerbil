@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<meta property="og:title" content="Jerbil CMS Editor" />
+		<!-- Explicit Content-Security-Policy is required for the GoodLoop app -->
+		<meta http-equiv="Content-Security-Policy" content="default-src * gap://ready file:; style-src 'self' 'unsafe-inline' *; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; media-src * 'self' data: https: http:; img-src * data: 'unsafe-inline'; connect-src * 'unsafe-inline'; frame-src * 'unsafe-inline' 'unsafe-eval';">  
+
+		<title>Jerbil</title>
+		<link rel="shortcut icon" href="/favicon-32.png" />
+
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+		<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous"> -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
+		<link rel="stylesheet" type="text/css" href="/editor/style/main.css">
+		<link rel="stylesheet" type="text/css" href="/editor/style/print.css" media="print">		
+	</head>
+	<body>
+		
+		<div id="mainDiv"></div>
+
+		<footer>
+			<!-- Scripts -->
+			<script defer src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+			<script defer src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+			<!-- everything else comes via webpack -->
+			<script>
+				// ??Not making -debug bundle -- where is that setup??
+				// Insert bundle[-debug].js - but allow dynamic test/production build switch.
+				// Default to debug build on test and local servers.
+				var isDebug = window.location.hostname.match(/^local/) || window.location.hostname.match(/^test/);
+				isDebug = false;
+
+				// Has the user specified debug/production build with a URL param?
+				var debugParam = window.location.search.match(/debug=(\w+)/i);
+				if (debugParam && debugParam[1]) {
+					// Require an exact match to change from default
+					if (debugParam[1] === 'false') isDebug = false;
+					else if (debugParam[1] === 'true') isDebug = true;
+				}
+				
+				var filename = isDebug ? 'bundle-debug.js' : 'bundle.js';
+				document.write('<script defer src="/editor/build/js/' + filename + '"/><\/script>');
+			</script>
+		</footer>
+	</body>
+</html>

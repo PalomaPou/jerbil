@@ -111,7 +111,10 @@ public class Jerbil {
 		// servlets
 		jl.addServlet("/manifest", new HttpServletWrapper(SimpleManifestServlet.class));
 		if (config.editor) {
-			jl.addServlet("/pages", new HttpServletWrapper(PageEditorServlet.class));
+			jl.addServlet("/pages/*", new HttpServletWrapper(PageEditorServlet.class));
+			FileServlet edfileServer = new FileServlet(new File("/home/daniel/winterwell/jerbil/web")); // HACK FIXME
+			edfileServer.setChopServlet(true);
+			jl.addServlet("/editor/*", edfileServer);		
 		}
 		jl.addServlet("/*", fileServer);		
 		
