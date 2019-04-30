@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import com.goodloop.jerbil.BuildJerbilWebSite;
 import com.goodloop.jerbil.GitCheck;
 import com.goodloop.jerbil.JerbilConfig;
+import com.goodloop.jerbil.PageEditorServlet;
 import com.goodloop.jerbil.SimpleManifestServlet;
 import com.winterwell.bob.Bob;
 import com.winterwell.utils.Dep;
@@ -109,6 +110,9 @@ public class Jerbil {
 		HttpServlet fileServer = new FileServlet(webroot);
 		// servlets
 		jl.addServlet("/manifest", new HttpServletWrapper(SimpleManifestServlet.class));
+		if (config.editor) {
+			jl.addServlet("/pages", new HttpServletWrapper(PageEditorServlet.class));
+		}
 		jl.addServlet("/*", fileServer);		
 		
 		Log.report("web", "...Launching Jetty web server on port "+config.port, Level.INFO);

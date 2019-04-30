@@ -57,6 +57,9 @@ public class JerbilConfig {
 	@Option
 	public boolean noJerbilMarker;
 
+	@Option
+	public boolean editor = true;
+
 	public File getWebRootDir() {
 		return new File(projectdir, webroot);
 	}
