@@ -1,6 +1,7 @@
 package com.goodloop.jerbil;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -135,6 +136,9 @@ public class BuildJerbilPage {
 		long modtime = src.lastModified();
 		// vars
 		html = html.replace("$modtime", new Time(modtime).toString());
+		if ( ! var.containsKey("date")) {			
+			var.put("date", new Time(modtime).format("d MMM yyyy"));
+		}
 		// TODO use SimpleTemplateVars.java. It handles urls nicely.
 		// First, word boundaries
 		for(String k : var.keySet()) {
