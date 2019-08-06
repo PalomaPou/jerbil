@@ -18,6 +18,14 @@ You can define variables at the start of a page file, using the simple format:
 
 Then use them within templates or page contents via `$key`.
 
+## Templates and Imports: `<section>`
+
+You can pull content from other files into a page and use templates. E.g.
+
+* `<section src='myfooter' />` Load myfooter.html or myfooter.md and insert it here.
+* `<section src='myarticletemplate.html'>Blah blah</section>` Use myarticletemplate.html as a template with the contents "Blah blah".	
+
+
 ## Installation
 
 Depends on: the libraries in the [open-code](https://github.com/sodash/open-code) repo.

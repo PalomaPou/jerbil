@@ -1,8 +1,10 @@
 package com.goodloop.jerbil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,12 +14,15 @@ import com.winterwell.utils.Environment;
 import com.winterwell.utils.IReplace;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
+import com.winterwell.utils.Utils;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Time;
 import com.winterwell.web.fields.SField;
 
-// TODO mo
+/**
+ * This is where the text -> html magic happens 
+ */
 public class BuildJerbilPage {
 
 	private static final String LOGTAG = "jerbil";
@@ -26,11 +31,21 @@ public class BuildJerbilPage {
 	private File out;
 	private File template;
 
+	/**
+	 * 
+	 * @param src e.g. pages/mypage.md
+	 * @param out e.g. webroot/mypage.html
+	 * @param template
+	 */
 	public BuildJerbilPage(File src, File out, File template) {
 		this.src = src;
 		this.dir = src.getParentFile();
 		this.out = out;
 		this.template = template;
+	}
+	
+	public File getOut() {
+		return out;
 	}
 
 	@Override
@@ -51,20 +66,27 @@ public class BuildJerbilPage {
 		
 		String page = FileUtils.read(src).trim();		
 		
-		html = run2_render(src, page, html);
+		// NB: leave html as-is
+		boolean applyMarkdown = ! (FileUtils.getType(src).equals("html") || FileUtils.getType(src).equals("htm"));
+		html = run2_render(applyMarkdown, page, html);
 				
 		out.getParentFile().mkdir();
 		FileUtils.write(out, html);
 		Log.i(LOGTAG, "Made "+out);
 	}
 
-	private String run2_render(File src2, String page, String html) {
-		if (FileUtils.getType(src).equals("html") || FileUtils.getType(src).equals("htm")) {
-			// html -- keep the page as-is
-		} else {
+	/**
+	 * 
+	 * @param applyMarkdown Also strip out vars
+	 * @param srcPage Text contents
+	 * @param html
+	 * @return
+	 */
+	private String run2_render(boolean applyMarkdown, String srcPage, String templateHtml) {
+		if (applyMarkdown) {
 			// Strip out variables
 			Pattern KV = Pattern.compile("^(\\w+):(.*)$", Pattern.MULTILINE);
-			Matcher m = KV.matcher(page);
+			Matcher m = KV.matcher(srcPage);
 			int prev=0;			
 			while(m.find()) {
 				// +2 to allow for \r\n endings (untested)
@@ -74,11 +96,11 @@ public class BuildJerbilPage {
 				var.put(k, v);
 				prev = m.end();				
 			}			
-			page = page.substring(prev).trim();
+			srcPage = srcPage.substring(prev).trim();
 			
 			// TODO upgrade to https://github.com/vsch/flexmark-java 
 			// or https://github.com/atlassian/commonmark-java
-			page = Markdown.render(page);
+			srcPage = Markdown.render(srcPage);
 //			MarkdownProcessor mp = new MarkdownProcessor();
 //			page = mp.markdown(page);
 		}
@@ -88,33 +110,76 @@ public class BuildJerbilPage {
 		}
 		
 		// Variables
-		html = insertVariables(html, page);
+		String html = insertVariables(templateHtml, srcPage);
 		
 		// Recursive fill in of file references
-		Pattern SECTION = Pattern.compile("<section\\s+src=['\"]([\\S'\"]+)['\"]\\s*/>", Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
+		html = run3_fillSections(html);
+
+		// Jerbil version marker
+		html = addJerbilVersionMarker(html);
+		
+		return html;
+	}
+
+	private String run3_fillSections(String html) {
+		Pattern SECTION = Pattern.compile(
+				"<section\\s+src=['\"]([\\S'\"]+)['\"]\\s*(/>|>(.*)</section\\s*>)", Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
 //		for(int depth=0; depth<10; depth++) {
 		final String fhtml = html;
 		String html2 = StrUtils.replace(fhtml, SECTION, new IReplace() {
 			@Override
 			public void appendReplacementTo(StringBuilder sb, Matcher match) {
+				// src=
 				String insert = match.group(1);
-				// TODO security check: not below webroot!
-				File fi = new File(insert);
-				if ( ! fi.isAbsolute()) fi = new File(dir, insert);
-				String text = FileUtils.read(fi);
-				String sectionHtml = run2_render(fi, text, fhtml.substring(match.start(), match.end()-2)+"$contents</section>");
-				sb.append(sectionHtml);
+				// tag contents?
+				String contents;
+				if (match.group().endsWith("/>")) {
+					// self closing
+					contents = "";
+				} else {
+					// need a close
+					String m2 = match.group(2);
+					contents = fhtml.substring(match.start()+8, match.end()-8);
+				}				
+				
+				File file = resolveRef(insert);
+				String ftype = FileUtils.getType(file);
+				String text = FileUtils.read(file);
+				
+				boolean srcIsHtml = ftype.endsWith("html") || ftype.endsWith("htm");
+				if (srcIsHtml) {
+					// src is html or a template
+					String shtml = run2_render(true, contents, text);					
+					sb.append(shtml);
+				} else {
+					// src is a markdown file -- run it through a dummy template
+					String sectionHtml = run2_render(true, text+contents, "<section>$contents</section>");
+					sb.append(sectionHtml);					
+				}				
 			}
 		});
-//			if (html2.equals(html)) {
-//				break;				
-//			}
-		html = html2;
-//		}
-		// Jerbil version marker
-		html = addJerbilVersionMarker(html);
+		return html2;
+	}
+
+	protected File resolveRef(String insert) {
+		// TODO a better security check: not below webroot!
+		if (insert.contains("..")) {
+			throw new SecurityException("Illegal section src in "+src+": "+insert);
+		}
 		
-		return html;
+		// 1. a template file??
+		
+		// 2. a local file?
+		File fi = new File(dir, insert);
+		if (fi.isFile()) return fi;
+		
+		// 3. a sloppy reference
+		JerbilLinkResolver jlr = new JerbilLinkResolver();
+		List<File> files = jlr.findFilesFromRef(insert);
+		if (files.isEmpty()) {
+			throw Utils.runtime(new FileNotFoundException(insert+" referenced in "+src));
+		}
+		return files.get(0);
 	}
 
 	private String addJerbilVersionMarker(String html) {

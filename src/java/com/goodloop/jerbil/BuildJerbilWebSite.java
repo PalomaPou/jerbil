@@ -65,9 +65,7 @@ public class BuildJerbilWebSite extends BuildTask {
 		}
 		for(File f : dir.listFiles()) {
 			if (f.isFile()) {				
-				String relpath = FileUtils.getRelativePath(f, pages);		
-				File out = new File(webroot, relpath);		
-				out = FileUtils.changeType(out, "html");
+				File out = getOutputFileForSource(f);
 				
 				File template = getTemplate(out);
 				assert template != null : "No html template?! "+webroot;
@@ -82,6 +80,14 @@ public class BuildJerbilWebSite extends BuildTask {
 				doTask2(f);
 			}
 		}
+	}
+
+	
+	protected File getOutputFileForSource(File f) {
+		String relpath = FileUtils.getRelativePath(f, pages);		
+		File out = new File(webroot, relpath);		
+		out = FileUtils.changeType(out, "html");
+		return out;
 	}
 
 	protected File getTemplate(File outputFile) {
