@@ -26,14 +26,14 @@ public class BuildJerbil extends BuildWinterwellProject {
 	}
 	
 
-	@Override
-	public List<BuildTask> getDependencies() {
-		List<BuildTask> list = super.getDependencies();
-//		list.add(new BuildUtils());
-//		list.add(new BuildWeb());
-//		list.add(new BuildBob());
-		return list;
-	}
+//	@Override
+//	public List<BuildTask> getDependencies() {
+//		List<BuildTask> list = super.getDependencies();
+////		list.add(new BuildUtils());
+////		list.add(new BuildWeb());
+////		list.add(new BuildBob());
+//		return list;
+//	}
 	
 
 
