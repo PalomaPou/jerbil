@@ -15,6 +15,7 @@ import com.winterwell.utils.IReplace;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Time;
@@ -25,11 +26,13 @@ import com.winterwell.web.fields.SField;
  */
 public class BuildJerbilPage {
 
+	static final Pattern KV = Pattern.compile("^([A-Za-z0-9\\-_]+):(.*)$", Pattern.MULTILINE);
 	private static final String LOGTAG = "jerbil";
 	private File src;
 	private File dir;
 	private File out;
 	private File template;
+	private Map<String, String> baseVars = new ArrayMap();
 
 	/**
 	 * 
@@ -53,11 +56,11 @@ public class BuildJerbilPage {
 		return "BuildJerbilPage [src=" + src + ", out=" + out + ", template=" + template + "]";
 	}
 	
-	Map<String, Object> var = new HashMap();
+//	Map<String, Object> var = new HashMap();
 	
-	public void setVars(Map<String, ?> vars) {
-		this.var = new HashMap(vars); // defensive copy to avoid accidental shared structure
-	}
+//	public void setVars(Map<String, ?> vars) {
+//		this.var = new HashMap(vars); // defensive copy to avoid accidental shared structure
+//	}
 
 	void run() {
 		String html = FileUtils.read(template).trim();
@@ -68,7 +71,7 @@ public class BuildJerbilPage {
 		
 		// NB: leave html as-is
 		boolean applyMarkdown = ! (FileUtils.getType(src).equals("html") || FileUtils.getType(src).equals("htm"));
-		html = run2_render(applyMarkdown, page, html);
+		html = run2_render(applyMarkdown, page, html, baseVars);
 				
 		out.getParentFile().mkdir();
 		FileUtils.write(out, html);
@@ -82,27 +85,14 @@ public class BuildJerbilPage {
 	 * @param html
 	 * @return
 	 */
-	private String run2_render(boolean applyMarkdown, String srcPage, String templateHtml) {
+	private String run2_render(boolean applyMarkdown, String srcPage, String templateHtml, Map var) {
 		if (applyMarkdown) {
 			// Strip out variables
-			Pattern KV = Pattern.compile("^(\\w+):(.*)$", Pattern.MULTILINE);
-			Matcher m = KV.matcher(srcPage);
-			int prev=0;			
-			while(m.find()) {
-				// +2 to allow for \r\n endings (untested)
-				if (m.start() > prev+2) break;
-				String k = m.group(1);
-				String v = m.group(2).trim();
-				var.put(k, v);
-				prev = m.end();				
-			}			
-			srcPage = srcPage.substring(prev).trim();
+			srcPage = chopSetVars(srcPage, var);
 			
 			// TODO upgrade to https://github.com/vsch/flexmark-java 
 			// or https://github.com/atlassian/commonmark-java
 			srcPage = Markdown.render(srcPage);
-//			MarkdownProcessor mp = new MarkdownProcessor();
-//			page = mp.markdown(page);
 		}
 		// $title
 		if (var!=null && ! var.containsKey("title")) {
@@ -110,10 +100,10 @@ public class BuildJerbilPage {
 		}
 		
 		// Variables
-		String html = insertVariables(templateHtml, srcPage);
+		String html = insertVariables(templateHtml, srcPage, var);
 		
 		// Recursive fill in of file references
-		html = run3_fillSections(html);
+		html = run3_fillSections(html, var);
 
 		// Jerbil version marker
 		html = addJerbilVersionMarker(html);
@@ -121,9 +111,9 @@ public class BuildJerbilPage {
 		return html;
 	}
 
-	private String run3_fillSections(String html) {
+	private String run3_fillSections(String html, Map var) {
 		Pattern SECTION = Pattern.compile(
-				"<section\\s+src=['\"]([\\S'\"]+)['\"]\\s*(/>|>(.*)</section\\s*>)", Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
+				"<section\\s+src=['\"]([\\S'\"]+)['\"]\\s*(/>|>(.*?)</section\\s*>)", Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
 //		for(int depth=0; depth<10; depth++) {
 		final String fhtml = html;
 		String html2 = StrUtils.replace(fhtml, SECTION, new IReplace() {
@@ -139,7 +129,12 @@ public class BuildJerbilPage {
 				} else {
 					// need a close
 					String m2 = match.group(2);
-					contents = fhtml.substring(match.start()+8, match.end()-8);
+					contents = m2.substring(1); // chop the > from the front of m2
+					Matcher chopOff = Pattern.compile("</section\\s*>$", Pattern.CASE_INSENSITIVE).matcher(contents);
+					if (chopOff.find()) {
+						contents = contents.substring(0, chopOff.start());
+					}
+					contents = contents.trim();
 				}				
 				
 				File file = resolveRef(insert);
@@ -147,18 +142,37 @@ public class BuildJerbilPage {
 				String text = FileUtils.read(file);
 				
 				boolean srcIsHtml = ftype.endsWith("html") || ftype.endsWith("htm");
+				Map varmap2 = new ArrayMap(var); // copy vars then modify (so we don't pass one sections vars into another section)
+				
 				if (srcIsHtml) {
 					// src is html or a template
-					String shtml = run2_render(true, contents, text);					
+					String shtml = run2_render(true, contents, text, varmap2);					
 					sb.append(shtml);
 				} else {
 					// src is a markdown file -- run it through a dummy template
-					String sectionHtml = run2_render(true, text+contents, "<section>$contents</section>");
+					// ...chop contents into vars / contents					
+					contents = chopSetVars(contents, varmap2);
+					String sectionHtml = run2_render(true, text+contents, "<section>$contents</section>", varmap2);
 					sb.append(sectionHtml);					
 				}				
 			}
 		});
 		return html2;
+	}
+
+	protected String chopSetVars(String srcPage, Map varmap) {
+		Matcher varm = KV.matcher(srcPage);
+		int prev=0;
+		while(varm.find()) {
+			// +2 to allow for \r\n endings (untested)
+			if (varm.start() > prev+2) break;
+			String k = varm.group(1);
+			String v = varm.group(2).trim();
+			varmap.put(k, v);
+			prev = varm.end();
+		}			
+		srcPage = srcPage.substring(prev).trim();
+		return srcPage;
 	}
 
 	protected File resolveRef(String insert) {
@@ -192,7 +206,7 @@ public class BuildJerbilPage {
 		return html;
 	}
 
-	private String insertVariables(String html, String page) {
+	private String insertVariables(String html, String page, Map<String,Object> var) {
 		// TODO key: value at the top of file -> javascript jerbil.key = value variables
 		// TODO files -> safely restricted file access??
 		html = html.replace("$generator", "Jerbil version "+JerbilConfig.VERSION);
@@ -224,6 +238,10 @@ public class BuildJerbilPage {
 		if ( ! html.contains("$contents")) {
 			throw new IllegalStateException("The template file MUST contain the $contents variable: "+template);
 		}
+	}
+
+	public void setBaseVars(Map<String, String> vars) {
+		baseVars = vars;
 	}
 	
 }

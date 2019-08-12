@@ -72,7 +72,7 @@ public class BuildJerbilWebSite extends BuildTask {
 				
 				BuildJerbilPage bjp = new BuildJerbilPage(f, out, template);
 				Map<String, String> vars = config.var;
-				bjp.setVars(vars);
+				bjp.setBaseVars(vars);
 				bjp.run();
 				continue;
 			}
