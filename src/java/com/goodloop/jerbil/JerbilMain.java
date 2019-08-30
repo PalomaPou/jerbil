@@ -8,9 +8,12 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServlet;
 
 import com.winterwell.bob.Bob;
+import com.winterwell.bob.tasks.Classpath;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.Environment;
+import com.winterwell.utils.ReflectionUtils;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.gui.GuiUtils;
 import com.winterwell.utils.io.ConfigBuilder;
 import com.winterwell.utils.io.ConfigFactory;
@@ -21,6 +24,7 @@ import com.winterwell.utils.io.WatchFiles.IListenToFileEvents;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.web.WebUtils;
 import com.winterwell.utils.web.WebUtils2;
+import com.winterwell.web.FakeBrowser;
 import com.winterwell.web.app.FileServlet;
 import com.winterwell.web.app.HttpServletWrapper;
 import com.winterwell.web.app.JettyLauncher;
@@ -38,6 +42,7 @@ import com.winterwell.web.fields.SField;
  */
 public class JerbilMain {
 
+	private static final String LOGTAG = "Jerbil";
 	private static BuildJerbilWebSite b;
 	private static GitCheck gitCheck;
 
@@ -52,7 +57,7 @@ public class JerbilMain {
 		// help?
 		if (args.length==1 && "--help".equals(args[0])) {
 			System.out.println("");
-			System.out.println("Jerbil website builder, version "+JerbilConfig.VERSION);
+			System.out.println("Jerbil website builder, version "+JerbilConfig.VERSION+" "+Utils.or(getMyJar(),""));
 			System.out.println("----------------------------------------");
 			System.out.println("");
 			System.out.println(new ConfigBuilder(new JerbilConfig()).getOptionsMessage());
@@ -60,6 +65,14 @@ public class JerbilMain {
 		}
 
 		JerbilConfig config = getConfig(args);
+
+		// update?
+		if (config.update) {
+			doUpdateJar();
+			// exit
+			return;
+		}
+
 		
 		if (config.projectdir==null) {
 			System.out.println("Run in a Jerbil website project directory -- or with the path to one as a parameter.");
@@ -98,6 +111,33 @@ public class JerbilMain {
 		while(true) {
 			Utils.sleep(10000);
 		}
+	}
+
+	static void doUpdateJar() {
+		Log.d(LOGTAG, "update Jerbil...");
+		FakeBrowser fb = new FakeBrowser();
+		fb.setMaxDownload(50); // 50mb?!
+		File bobJar = fb.getFile("https://www.winterwell.com/software/downloads/jerbil-all.jar");
+		System.out.println("Jerbil jar downloaded to:");
+		System.out.println(bobJar);
+		File myJar = getMyJar();
+		if (myJar!=null && bobJar.length() > 0) {
+			FileUtils.copy(myJar, FileUtils.changeType(myJar, ".jar.old"));
+			FileUtils.move(bobJar, myJar);
+			Log.d(LOGTAG, "Fresh Jerbil moved to "+myJar);
+		}
+	}
+
+	private static File getMyJar() {
+		String classpath = System.getProperty("java.class.path");
+		Classpath cp = new Classpath(classpath);
+		List<File> old = Containers.filter(cp.getFiles(), f -> f.getName().equals("jerbil-all.jar"));
+		if (old.size() == 1) return old.get(0);
+		
+		List<File> olds = Containers.filter(cp.getFiles(), f -> f.getName().equals("jerbil.jar"));
+		if (olds.size() == 1) return olds.get(0);
+		
+		return null;
 	}
 
 	private static void runServer(JerbilConfig config) {

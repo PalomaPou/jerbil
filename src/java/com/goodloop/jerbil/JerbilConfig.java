@@ -13,7 +13,7 @@ import com.winterwell.utils.time.TUnit;
 
 public class JerbilConfig {
 	
-	public static final String VERSION = "0.5.1";
+	public static final String VERSION = "0.5.2";
 	
 	@Override
 	public String toString() {
@@ -59,6 +59,9 @@ public class JerbilConfig {
 
 	@Option
 	public boolean editor = true;
+
+	@Option(description="Download a fresh copy of Jerbil itself (but you'll have to copy the jar into place)")
+	public boolean update;
 
 	public File getWebRootDir() {
 		return new File(projectdir, webroot);
