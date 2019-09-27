@@ -3,6 +3,7 @@ package com.goodloop.jerbil;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 import org.junit.Test;
 

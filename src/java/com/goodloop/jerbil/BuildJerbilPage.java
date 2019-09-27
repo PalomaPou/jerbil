@@ -214,16 +214,28 @@ public class BuildJerbilPage {
 		html = html.replace("$webroot", ""); // TODO if dir is a sub-dir of webroot, put in a local path here, e.g. ".." 
 		long modtime = src.lastModified();
 		// vars
-		html = html.replace("$modtime", new Time(modtime).toString());
 		if ( ! var.containsKey("date")) {			
 			var.put("date", new Time(modtime).format("d MMM yyyy"));
+		}
+		if ( ! var.containsKey("modtime")) {
+			var.put("modtime", new Time(modtime).toString());
 		}
 		// TODO use SimpleTemplateVars.java. It handles urls nicely.
 		// First, word boundaries
 		for(String k : var.keySet()) {
-			Object v = var.get(k);
-			String vs = Printer.toString(v);
-			html = html.replaceAll("\\$"+Pattern.quote(k)+"\\b", vs);
+			try {
+				Object v = var.get(k);			
+				// slightly recursive HACK
+				if (var.containsKey(v)) {
+					v = var.get(v);
+				}
+				String vs = Matcher.quoteReplacement(Printer.toString(v));				
+				String ps = "\\$"+Pattern.quote(k)+"\\b";
+				html = html.replaceAll(ps, vs);
+			} catch(Exception ex) {
+				// Paranoia: it should not be possible to upset the regex handling above.
+				Log.e(LOGTAG, ex+" from ["+k+"] in "+src);
+			}
 		}
 		// now anything goes
 		for(String k : var.keySet()) {
