@@ -86,6 +86,9 @@ public class BuildJerbilPage {
 	 * @return
 	 */
 	private String run2_render(boolean applyMarkdown, String srcPage, String templateHtml, Map var) {
+		// $title (done before looking at the local vars so they could override it)
+		var.put("title", StrUtils.toTitleCasePlus(FileUtils.getBasename(src)));
+		
 		if (applyMarkdown) {
 			// Strip out variables
 			srcPage = chopSetVars(srcPage, var);
@@ -93,10 +96,6 @@ public class BuildJerbilPage {
 			// TODO upgrade to https://github.com/vsch/flexmark-java 
 			// or https://github.com/atlassian/commonmark-java
 			srcPage = Markdown.render(srcPage);
-		}
-		// $title
-		if (var!=null && ! var.containsKey("title")) {
-			var.put("title", StrUtils.toTitleCasePlus(FileUtils.getBasename(src)));
 		}
 		
 		// Variables
@@ -226,8 +225,12 @@ public class BuildJerbilPage {
 			try {
 				Object v = var.get(k);			
 				// slightly recursive HACK
-				if (var.containsKey(v)) {
+				int cnt=0;
+				while(var.containsKey(v)) {
 					v = var.get(v);
+					// avoid loops
+					cnt++;
+					if (cnt>10) break;
 				}
 				String vs = Matcher.quoteReplacement(Printer.toString(v));				
 				String ps = "\\$"+Pattern.quote(k)+"\\b";
