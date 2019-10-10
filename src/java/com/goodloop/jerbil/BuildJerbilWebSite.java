@@ -3,11 +3,15 @@ package com.goodloop.jerbil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.winterwell.bob.BuildTask;
+import com.winterwell.utils.Printer;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.FileUtils;
+import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Dt;
 
 /**
@@ -64,25 +68,69 @@ public class BuildJerbilWebSite extends BuildTask {
 			throw Utils.runtime(new IOException("Not a directory: "+dir));
 		}
 		for(File f : dir.listFiles()) {
-			if (f.isFile()) {				
-				File out = getOutputFileForSource(f);
-				
-				File template = getTemplate(out);
-				assert template != null : "No html template?! "+webroot;
-				
-				BuildJerbilPage bjp = new BuildJerbilPage(f, out, template);
-				Map<String, String> vars = config.var;
-				bjp.setBaseVars(vars);
-				bjp.run();
-				continue;
-			}
 			if (f.isDirectory()) {
 				doTask2(f);
+				continue;
 			}
+			if ( ! f.isFile()) {
+				// huh?
+				continue;
+			}
+			// "mail merge"?
+			if ( f.getName().endsWith(".csv")) {
+				doTask3_CSV(f);
+			}
+			// Process a file!
+			File out = getOutputFileForSource(f);
+			
+			File template = getTemplate(out);
+			assert template != null : "No html template?! "+webroot;
+			
+			BuildJerbilPage bjp = new BuildJerbilPage(f, out, template);
+			Map<String, String> vars = config.var;
+			bjp.setBaseVars(vars);
+			bjp.run();
+			continue;
 		}
 	}
 
 	
+	private void doTask3_CSV(File f) {
+		try {
+			CSVReader r = new CSVReader(f);
+			// the 1st line must be column headers
+			String[] header = r.next();
+			// TODO case etc flexible header handling (as SoGive's csv code does)
+			for (String[] row : r) {
+				if (row.length==0) continue;
+				// turn a row into a map of key:value variables
+				HashMap map = new HashMap();
+				for (int i = 0; i < header.length; i++) {
+					String hi = header[i];
+					if (Utils.isBlank(hi)) continue;
+					hi = hi.trim();
+					hi = hi.replaceAll("\\s+", "_"); // no whitespace in variable names
+					hi = hi.replaceAll("\\W+", ""); // no punctuation
+					map.put(hi, row[i]);
+				}
+				String srcText = Printer.toString(map, "\n", ":");
+
+				// now process into the template
+				File out = getOutputFileForSource(f);				
+				out = FileUtils.changeType(out, r.getLineNumber()+row[0]+".html");
+				File template = getTemplate(out);
+				assert template != null : "No html template?! "+webroot;
+				// ...run
+				BuildJerbilPage bjp = new BuildJerbilPage(f, srcText, out, template);
+				Map<String, String> vars = config.var;
+				bjp.setBaseVars(vars);
+				bjp.run();
+			}
+		} catch(Exception ex) {
+			Log.e(ex+" from "+f); // TODO better error handling in Jerbil??
+		}
+	}
+
 	protected File getOutputFileForSource(File f) {
 		String relpath = FileUtils.getRelativePath(f, pages);		
 		File out = new File(webroot, relpath);		

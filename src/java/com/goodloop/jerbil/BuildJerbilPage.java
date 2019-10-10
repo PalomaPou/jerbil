@@ -33,6 +33,7 @@ public class BuildJerbilPage {
 	private File out;
 	private File template;
 	private Map<String, String> baseVars = new ArrayMap();
+	private String srcText;
 
 	/**
 	 * 
@@ -41,12 +42,17 @@ public class BuildJerbilPage {
 	 * @param template
 	 */
 	public BuildJerbilPage(File src, File out, File template) {
+		this(src, null, out, template);
+	}
+
+	public BuildJerbilPage(File src, String srcText, File out, File template) {
 		this.src = src;
+		this.srcText = srcText;
 		this.dir = src.getParentFile();
 		this.out = out;
 		this.template = template;
 	}
-	
+
 	public File getOut() {
 		return out;
 	}
@@ -67,7 +73,8 @@ public class BuildJerbilPage {
 		// check the template
 		checkTemplate(html);
 		
-		String page = FileUtils.read(src).trim();		
+		String page = srcText==null? FileUtils.read(src) : srcText;
+		page = page.trim();
 		
 		// NB: leave html as-is
 		boolean applyMarkdown = ! (FileUtils.getType(src).equals("html") || FileUtils.getType(src).equals("htm"));
@@ -87,7 +94,9 @@ public class BuildJerbilPage {
 	 */
 	private String run2_render(boolean applyMarkdown, String srcPage, String templateHtml, Map var) {
 		// $title (done before looking at the local vars so they could override it)
-		var.put("title", StrUtils.toTitleCasePlus(FileUtils.getBasename(src)));
+		if (src != null) {
+			var.put("title", StrUtils.toTitleCasePlus(FileUtils.getBasename(src)));
+		}
 		
 		if (applyMarkdown) {
 			// Strip out variables
@@ -256,7 +265,7 @@ public class BuildJerbilPage {
 	}
 
 	public void setBaseVars(Map<String, String> vars) {
-		baseVars = vars;
+		baseVars = new HashMap(vars); // paranoid copy
 	}
 	
 }
