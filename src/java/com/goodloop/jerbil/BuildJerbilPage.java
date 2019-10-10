@@ -19,6 +19,7 @@ import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Time;
+import com.winterwell.utils.web.WebUtils2;
 import com.winterwell.web.fields.SField;
 
 /**
@@ -48,7 +49,7 @@ public class BuildJerbilPage {
 	public BuildJerbilPage(File src, String srcText, File out, File template) {
 		this.src = src;
 		this.srcText = srcText;
-		this.dir = src.getParentFile();
+		this.dir = src==null? null : src.getParentFile();
 		this.out = out;
 		this.template = template;
 	}
@@ -241,7 +242,9 @@ public class BuildJerbilPage {
 					cnt++;
 					if (cnt>10) break;
 				}
-				String vs = Matcher.quoteReplacement(Printer.toString(v));				
+				// make the value regex and html safe
+				String vs = escapeValue(v);
+				
 				String ps = "\\$"+Pattern.quote(k)+"\\b";
 				html = html.replaceAll(ps, vs);
 			} catch(Exception ex) {
@@ -252,15 +255,35 @@ public class BuildJerbilPage {
 		// now anything goes
 		for(String k : var.keySet()) {
 			Object v = var.get(k);
-			String vs = Printer.toString(v);
+			String vs = escapeValue(v);
 			html = html.replace("$"+k, vs);
 		}
 		return html;
 	}
 
+	/**
+	 * 
+	 * @param v
+	 * @return html safe and regex safe
+	 */
+	String escapeValue(Object v) {
+		if (v==null) return "";
+		String _vs = Printer.toString(v);
+		// NB: md doesnt handle £s -s and puts in annoying tags
+//		String _vs0 = Markdown.render(_vs).trim(); // This will handle html entities
+//		// pop the outer tag that Markdown puts in
+//		if (_vs.startsWith("<p>")) _vs = StrUtils.substring(_vs, 3, -4);		
+//		String _vs1 = WebUtils2.attributeEncode(_vs);
+		
+		String _vs2 = WebUtils2.htmlEncodeWithUrlProtection(_vs);
+		_vs = _vs2;
+		_vs = Matcher.quoteReplacement(_vs);
+		return _vs;
+	}
+
 	private void checkTemplate(String html) {
-		if ( ! html.contains("$contents")) {
-			throw new IllegalStateException("The template file MUST contain the $contents variable: "+template);
+		if ( ! html.contains("$contents") && ! html.contains("$nocontents")) {
+			throw new IllegalStateException("The template file MUST contain the $contents or $nocontents variable: "+template);
 		}
 	}
 

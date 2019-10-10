@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.winterwell.bob.BuildTask;
 import com.winterwell.utils.Printer;
+import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.FileUtils;
@@ -114,7 +115,8 @@ public class BuildJerbilWebSite extends BuildTask {
 					map.put(hi, row[i]);
 				}
 				String srcText = Printer.toString(map, "\n", ":");
-
+				srcText = StrUtils.substring(srcText, 1, -1); // chop the wrappping {}
+				
 				// now process into the template
 				File out = getOutputFileForSource(f);				
 				out = FileUtils.changeType(out, r.getLineNumber()+row[0]+".html");

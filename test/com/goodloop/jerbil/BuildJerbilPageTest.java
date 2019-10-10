@@ -3,16 +3,36 @@ package com.goodloop.jerbil;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
 
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.Printer;
+import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.web.WebUtils;
 
 public class BuildJerbilPageTest {
 
+	@Test
+	public void testEscapeValue() {
+		init();
+		BuildJerbilPage bjp = new BuildJerbilPage(new File(""), "dummy", new File(""), new File(""));
+		Map io = new ArrayMap(
+			"Just some vanilla text :)", "Just some vanilla text :)",
+//			"Hello **world**", "Hello <strong>world</strong>", No md support
+			-10, "-10",
+			"a & b", "a &amp; b",
+			"https://example.com/foo?bar=7&x=2", "https://example.com/foo?bar=7&x=2",
+			"£5", "&pound;5" // ??
+		);
+		for(Object i : io.keySet()) {
+			Object o = io.get(i);
+			assert bjp.escapeValue(i).equals(o) : bjp.escapeValue(i);
+		}	
+	}
+	
 	@Test
 	public void testResolveRef() {
 		init();
