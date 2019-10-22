@@ -14,6 +14,7 @@ import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Dt;
+import com.winterwell.utils.web.WebUtils2;
 
 /**
  * Build a Jerbil website.
@@ -80,7 +81,19 @@ public class BuildJerbilWebSite extends BuildTask {
 			// "mail merge"?
 			if ( f.getName().endsWith(".csv")) {
 				doTask3_CSV(f);
+				continue;
 			}
+			// a stray binary or other file? just copy it
+			String type = FileUtils.getType(f).toLowerCase();
+			// see https://fileinfo.com/filetypes/text
+			if ( ! type.isEmpty() && ! "txt md markdown text html htm rtf wiki me 1st ascii asc eml".contains(type)) {
+				Log.d(LOGTAG, "Copy as-is "+f);
+				String relpath = FileUtils.getRelativePath(f, pages);		
+				File out = new File(webroot, relpath);
+				FileUtils.copy(f, out);
+				continue;
+			}
+			
 			// Process a file!
 			File out = getOutputFileForSource(f);
 			
