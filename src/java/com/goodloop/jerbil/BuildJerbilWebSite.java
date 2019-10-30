@@ -3,13 +3,16 @@ package com.goodloop.jerbil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.winterwell.bob.BuildTask;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.log.Log;
@@ -115,6 +118,10 @@ public class BuildJerbilWebSite extends BuildTask {
 			// the 1st line must be column headers
 			String[] header = r.next();
 			// TODO case etc flexible header handling (as SoGive's csv code does)
+			// 2 stage templating?
+			File mdtemplateFile = getSrcTemplate(f);
+			String mdtemplate = mdtemplateFile != null? FileUtils.read(mdtemplateFile) : null;
+			
 			for (String[] row : r) {
 				if (row.length==0) continue;
 				// turn a row into a map of key:value variables
@@ -131,6 +138,11 @@ public class BuildJerbilWebSite extends BuildTask {
 				srcText = StrUtils.substring(srcText, 1, -1); // chop the wrappping {}
 				
 				// now process into the template
+				// ...2 stage template? .md then .html?				
+				if (mdtemplate != null) {
+					srcText += "\n\n"+mdtemplate;
+				}
+				// ...normal
 				File out = getOutputFileForSource(f);				
 				out = FileUtils.changeType(out, r.getLineNumber()+row[0]+".html");
 				File template = getTemplate(out);
@@ -162,6 +174,25 @@ public class BuildJerbilWebSite extends BuildTask {
 		return new File(webroot, "template.html");
 	}
 
+	/**
+	 * A src template is a markdown file used to process .csv
+	 * @param outputFile
+	 * @return can be null
+	 */
+	protected File getSrcTemplate(File csvFile) {
+		File dir = csvFile.getParentFile();
+		// allow a few options
+		File tf1 = FileUtils.changeType(csvFile, "md");
+		File tf2 = FileUtils.changeType(csvFile, "txt");
+		File tf3 = new File(dir, "template.md");
+		File tf4 = new File(dir, "template.html");		
+		List<File> templates = Containers.filter(Arrays.asList(tf1,tf2,tf3,tf4), f -> f.isFile());
+		if (templates.isEmpty()) return null;		
+		if (templates.size() > 1) {
+			Log.w(LOGTAG, "Multiple source templates available (only the first will be used) for "+csvFile+": "+templates);
+		}
+		return templates.get(0);
+	}
 	
 	
 
