@@ -14,6 +14,7 @@ import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.io.CSVReader;
+import com.winterwell.utils.io.CSVSpec;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Dt;
@@ -112,50 +113,55 @@ public class BuildJerbilWebSite extends BuildTask {
 	}
 
 	
-	private void doTask3_CSV(File f) {
+	private void doTask3_CSV(File csvFile) {
 		try {
-			CSVReader r = new CSVReader(f);
-			// the 1st line must be column headers
+			CSVSpec spec = new CSVSpec();
+			CSVReader r = new CSVReader(csvFile,spec);
+			// the 1st line MUST be column headers
 			String[] header = r.next();
 			// TODO case etc flexible header handling (as SoGive's csv code does)
 			// 2 stage templating?
-			File mdtemplateFile = getSrcTemplate(f);
+			File mdtemplateFile = getSrcTemplate(csvFile);
 			String mdtemplate = mdtemplateFile != null? FileUtils.read(mdtemplateFile) : null;
 			
 			for (String[] row : r) {
 				if (row.length==0) continue;
-				// turn a row into a map of key:value variables
-				HashMap map = new HashMap();
-				for (int i = 0; i < header.length; i++) {
-					String hi = header[i];
-					if (Utils.isBlank(hi)) continue;
-					hi = hi.trim();
-					hi = hi.replaceAll("\\s+", "_"); // no whitespace in variable names
-					hi = hi.replaceAll("\\W+", ""); // no punctuation
-					map.put(hi, row[i]);
-				}
-				String srcText = Printer.toString(map, "\n", ":");
-				srcText = StrUtils.substring(srcText, 1, -1); // chop the wrappping {}
-				
-				// now process into the template
-				// ...2 stage template? .md then .html?				
-				if (mdtemplate != null) {
-					srcText += "\n\n"+mdtemplate;
-				}
-				// ...normal
-				File out = getOutputFileForSource(f);				
-				out = FileUtils.changeType(out, r.getLineNumber()+row[0]+".html");
-				File template = getTemplate(out);
-				assert template != null : "No html template?! "+webroot;
-				// ...run
-				BuildJerbilPage bjp = new BuildJerbilPage(f, srcText, out, template);
-				Map<String, String> vars = config.var;
-				bjp.setBaseVars(vars);
-				bjp.run();
+				doTask4_CSV_row(csvFile, header, mdtemplate, row, r.getLineNumber());
 			}
 		} catch(Exception ex) {
-			Log.e(ex+" from "+f); // TODO better error handling in Jerbil??
+			Log.e(ex+" from "+csvFile); // TODO better error handling in Jerbil??
 		}
+	}
+
+	private void doTask4_CSV_row(File csvFile, String[] header, String mdtemplate, String[] row, int rowNum) {
+		// turn a row into a map of key:value variables
+		HashMap map = new HashMap();
+		for (int i = 0; i < header.length; i++) {
+			String hi = header[i];
+			if (Utils.isBlank(hi)) continue;
+			hi = hi.trim();
+			hi = hi.replaceAll("\\s+", "_"); // no whitespace in variable names
+			hi = hi.replaceAll("\\W+", ""); // no punctuation
+			map.put(hi, row[i]);
+		}
+		String srcText = Printer.toString(map, "\n", ":");
+		srcText = StrUtils.substring(srcText, 1, -1); // chop the wrappping {}
+		
+		// now process into the template
+		// ...2 stage template? .md then .html?				
+		if (mdtemplate != null) {
+			srcText += "\n\n"+mdtemplate;
+		}
+		// ...normal
+		File out = getOutputFileForSource(csvFile);				
+		out = FileUtils.changeType(out, rowNum+row[0]+".html");
+		File template = getTemplate(out);
+		assert template != null : "No html template?! "+webroot;
+		// ...run
+		BuildJerbilPage bjp = new BuildJerbilPage(csvFile, srcText, out, template);
+		Map<String, String> vars = config.var;
+		bjp.setBaseVars(vars);
+		bjp.run();
 	}
 
 	protected File getOutputFileForSource(File f) {
