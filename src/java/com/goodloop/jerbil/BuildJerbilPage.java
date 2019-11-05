@@ -199,10 +199,26 @@ public class BuildJerbilPage {
 		// 3. a sloppy reference
 		JerbilLinkResolver jlr = new JerbilLinkResolver();
 		List<File> files = jlr.findFilesFromRef(insert);
-		if (files.isEmpty()) {
-			throw Utils.runtime(new FileNotFoundException(insert+" referenced in "+src));
+		if ( ! files.isEmpty()) {
+			return files.get(0);			
 		}
-		return files.get(0);
+		
+		// 4. a webroot file
+		File outDir = out.getParentFile();
+		JerbilConfig config = Dep.get(JerbilConfig.class);
+		File webroot = config.getWebRootDir();
+		while(outDir!=null) {
+			File wf = new File(outDir, insert);
+			if (wf.isFile()) {
+				return wf;
+			}
+			outDir = outDir.getParentFile();
+			if ( ! FileUtils.contains(webroot, outDir)) {
+				break;
+			}
+		}
+		
+		throw Utils.runtime(new FileNotFoundException(insert+" referenced in "+src));
 	}
 
 	private String addJerbilVersionMarker(String html) {
