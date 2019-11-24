@@ -97,22 +97,24 @@ public class BuildJerbilWebSite extends BuildTask {
 				FileUtils.copy(f, out);
 				continue;
 			}
-			
-			// Process a file!
-			File out = getOutputFileForSource(f);
-			
-			File template = getTemplate(out);
-			assert template != null : "No html template?! "+webroot;
-			
-			BuildJerbilPage bjp = new BuildJerbilPage(f, out, template);
-			Map<String, String> vars = config.var;
-			bjp.setBaseVars(vars);
-			bjp.run();
-			continue;
+			doTask3_oneFile(f);
 		}
 	}
 
 	
+	void doTask3_oneFile(File f) {
+		// Process a file!
+		File out = getOutputFileForSource(f);
+		
+		File template = getTemplate(out);
+		assert template != null : "No html template?! "+webroot;
+		
+		BuildJerbilPage bjp = new BuildJerbilPage(f, out, template);
+		Map<String, String> vars = config.var;
+		bjp.setBaseVars(vars);
+		bjp.run();		
+	}
+
 	private void doTask3_CSV(File csvFile) {
 		try {
 			CSVSpec spec = new CSVSpec();

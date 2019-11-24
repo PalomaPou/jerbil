@@ -2,6 +2,7 @@ package com.goodloop.jerbil;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -72,15 +73,20 @@ public class JerbilMain {
 			// exit
 			return;
 		}
-
 		
 		if (config.projectdir==null) {
-			System.out.println("Run in a Jerbil website project directory -- or with the path to one as a parameter.");
+			System.err.println("Run in a Jerbil website project directory -- or with the path to one as a parameter.");
 			return;
 		}
 		// build
 		b = new BuildJerbilWebSite(config);
-		b.run();
+		if (config.inputFile==null) {
+			// normal case - build the whole site
+			b.run();
+		} else {
+			// just build one file (command line utility use-case)
+			b.doTask3_oneFile(config.inputFile);
+		}
 		// exit?
 		if (config.exit) {
 			// inform the user
@@ -174,25 +180,38 @@ public class JerbilMain {
 		
 		List<String> leftoverArgs = cb.getRemainderArgs();
 		File dir = config.projectdir!=null? config.projectdir : getConfig2_dir(leftoverArgs);
-		config.projectdir = dir;
-		// add dir's config properties, which could have been missed by the "global" files above
-		File f1 = new File(dir, "config/jerbil.properties").getAbsoluteFile();
-		File f2 = new File(dir, "config/"+cf.getMachine()+".properties").getAbsoluteFile();
-		for(File f : new File[] {f1,f2}) {
-			if (f.exists()) {
-				cb = new ConfigBuilder(config);
-				config = cb
-						.set(f)
-						.setFromMain(args) // args walways win
-						.get();
+		if (dir==null) {
+			throw new InvalidParameterException("No projectDir, and the current directory is not a Jerbil project as it has no "+config.webroot);
+		}
+		if (dir.isFile()) {
+			// oh - just process a file
+			config.inputFile = dir;
+			config.projectdir = FileUtils.getWorkingDirectory();
+		} else {
+			config.projectdir = dir;
+			// add dir's config properties, which could have been missed by the "global" files above
+			File f1 = new File(dir, "config/jerbil.properties").getAbsoluteFile();
+			File f2 = new File(dir, "config/"+cf.getMachine()+".properties").getAbsoluteFile();
+			for(File f : new File[] {f1,f2}) {
+				if (f.exists()) {
+					cb = new ConfigBuilder(config);
+					config = cb
+							.set(f)
+							.setFromMain(args) // args walways win
+							.get();
+				}
 			}
 		}
-		
 		Log.d("init", "Config:	"+config);
 		Dep.set(JerbilConfig.class, config);
 		return config;	
 	}
 
+	/**
+	 * 
+	 * @param leftoverArgs
+	 * @return 1st argument (which might be a file not a directory!), or current directory, or ask, or null
+	 */
 	private static File getConfig2_dir(List<String> leftoverArgs) {
 		if ( ! leftoverArgs.isEmpty()) {
 			File dir =new File(leftoverArgs.get(0));
@@ -200,7 +219,7 @@ public class JerbilMain {
 		}		
 		// are we in a Jerbil dir?
 		File wd = FileUtils.getWorkingDirectory();
-		if (new File(wd, "webroot").isDirectory() || new File(wd, "config/jerbil.properties").isFile()) {
+		if (new File(wd, JerbilConfig.DEFAULT_WEBROOT).isDirectory() || new File(wd, "config/jerbil.properties").isFile()) {
 			return wd;
 		}			
 		// Ask
