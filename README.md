@@ -6,7 +6,7 @@ We use this tool internally and it is 100% ready. We are working on nice packagi
 
 ## Basic use
 
-1. Clone the example jerbil site (TODO: link here) to get started quickly.
+1. Clone the [example jerbil site](https://github.com/winterstein/jerbil-website) to get started quickly.
 2. Write content in the pages directory. You can mix markdown and html.
 3. Run Jerbil
 
